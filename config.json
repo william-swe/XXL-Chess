@@ -1,0 +1,17 @@
+{
+  "layout": "white.txt",
+  "time_controls": {
+    "player": {
+      "seconds": 65,
+      "increment": 5
+    },
+    "cpu": {
+      "seconds": 65,
+      "increment": 5
+    }
+  },
+  "player_colour": "white",
+  "piece_movement_speed": 6.0,
+  "max_movement_time": 1.0
+}
+

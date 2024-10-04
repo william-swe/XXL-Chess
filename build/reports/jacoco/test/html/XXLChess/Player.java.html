@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Player.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">home</a> &gt; <a href="index.source.html" class="el_package">XXLChess</a> &gt; <span class="el_source">Player.java</span></div><h1>Player.java</h1><pre class="source lang-java linenums">package XXLChess;
+
+import processing.core.PApplet;
+import java.util.*;
+import XXLChess.Pieces.Piece;
+import XXLChess.Pieces.King;
+
+public abstract class Player {
+    
+    /**
+     * Name of the player
+     */
+    private String name;
+    /**
+     * Pieces colour of the player
+     */
+    private String player_colour;
+    /**
+     * Status of player's turn
+     */
+    private boolean isTurn;
+    /**
+     * Last moved piece of the player
+     */
+    private Piece lastPiece;
+
+    /**
+     * Constructor for a player, if player's colour pieces is white then
+     * the player makes the first move
+     * Last piece is set to null (no move has been made)
+     * @param name, player's name
+     * @param player_colour, player's piece colour
+     */
+<span class="fc" id="L34">    public Player(String name, String player_colour) {</span>
+<span class="fc" id="L35">        this.name = name;</span>
+<span class="fc" id="L36">        this.player_colour = player_colour;</span>
+<span class="fc" id="L37">        this.isTurn = player_colour.equals(&quot;white&quot;);</span>
+<span class="fc" id="L38">        this.lastPiece = null;</span>
+<span class="fc" id="L39">    }</span>
+
+    /**
+     * Returns player's name
+     * @return name
+     */
+    public String getName() {
+<span class="fc" id="L46">        return this.name;</span>
+    }
+
+    /**
+     * Returns player's colour
+     * @return colour
+     */
+    public String getColour() {
+<span class="fc" id="L54">        return this.player_colour;</span>
+    }
+
+    /**
+     * Returns true if it is player's turn
+     * otherwise, false
+     * @return player's turn status
+     */
+    public boolean isTurn() {
+<span class="fc" id="L63">        return this.isTurn;</span>
+    }
+
+    /**
+     * Set player's turn status
+     * @param status, player's turn status
+     */
+    protected void setTurn(boolean status) {
+<span class="fc" id="L71">        this.isTurn = status;</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Returns player's last moved piece
+     * @return last moved piece
+     */
+    public Piece getLastPiece() {
+<span class="fc" id="L79">        return this.lastPiece;</span>
+    }
+
+    /**
+     * Sets player's last moved piece
+     * @param lastP, last moved piece
+     */
+    protected void setLastPiece(Piece lastP) {
+<span class="fc" id="L87">        this.lastPiece = lastP;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (lastP != null) {</span>
+<span class="fc" id="L89">            this.lastPiece.setLast(true);</span>
+        }
+<span class="fc" id="L91">    }</span>
+
+    /**
+     * Sets player's pieces last status to false
+     */
+    protected void resetLastPiece() {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (Piece piece: getPieces()) {</span>
+<span class="fc" id="L98">            piece.setLast(false);</span>
+<span class="fc" id="L99">        }</span>
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Implements logics when a player starts their turn
+     */
+    public abstract void startTurn();
+
+    /**
+     * Implements logics when a player finishes their turn
+     */
+    public abstract void endTurn();
+
+    /**
+     * Returns player's pieces
+     * @return player's pieces
+     */
+    public ArrayList&lt;Piece&gt; getPieces() {
+<span class="fc" id="L117">        return updatePieceList();</span>
+    }
+
+    /**
+     * Returns player's king
+     * @return player's king
+     */
+    public King getKing() {
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        for (Piece piece: getPieces()) {</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">            if (piece instanceof King) {</span>
+<span class="fc" id="L127">                King king = (King) piece;</span>
+<span class="fc" id="L128">                return king;</span>
+            }
+<span class="fc" id="L130">        }</span>
+
+<span class="fc" id="L132">        return null;</span>
+    }
+
+    /**
+     * Updates player's pieces from all pieces on the board
+     * @return player's list of pieces
+     */
+    public ArrayList&lt;Piece&gt; updatePieceList() {
+<span class="fc" id="L140">        ArrayList&lt;Piece&gt; newPieces = new ArrayList&lt;Piece&gt;();</span>
+        
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">            if (piece.getColour().equals(getColour())) {</span>
+<span class="fc" id="L144">                newPieces.add(piece);</span>
+            }
+<span class="fc" id="L146">        }</span>
+
+<span class="fc" id="L148">        return newPieces;</span>
+    }
+
+    /**
+     * Logics to be implemented per frame when player is taking their turn:
+     * Updates piece list
+     * Highlight checkmate pieces if the player's king is checkmated
+     */
+    public void tick() {
+<span class="fc" id="L157">        updatePieceList();</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (isCheckMated()) {</span>
+<span class="fc" id="L159">            highLightCheckMatePieces();</span>
+        }
+<span class="fc" id="L161">    }</span>
+
+    /**
+     * Calls tick method to implement logics per frame
+     * @param app, application
+     */
+    public void draw(PApplet app) {
+<span class="fc" id="L168">        tick();</span>
+<span class="fc" id="L169">    }</span>
+
+    /**
+     * Returns true if player can make a move
+     * otherwise, false
+     * @return true or false
+     */
+    public boolean hasAMove() {
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        for (Piece piece: getPieces()) {</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">            if (!piece.validMoves().isEmpty()) {</span>
+<span class="fc" id="L179">                return true;</span>
+            }
+<span class="fc" id="L181">        }</span>
+
+<span class="fc" id="L183">        return false;</span>
+    }
+
+    /**
+     * Returns true if the player is checkmated
+     * otherwise, false
+     * @return true or false
+     */
+    public boolean isCheckMated() {
+<span class="fc" id="L192">        King king = getKing();</span>
+<span class="fc bfc" id="L193" title="All 4 branches covered.">        return king.isCheck() &amp;&amp; !hasAMove();</span>
+    }
+
+    /**
+     * Returns true if stalemate occurs
+     * otherwise, false
+     * @return true or false
+     */
+    public boolean isStalemate() {
+<span class="fc bfc" id="L202" title="All 4 branches covered.">        return isTurn() &amp;&amp; !hasAMove();</span>
+    }
+
+    /**
+     * Highlights opponent pieces that contribute to checkmate by setting pieces
+     * contributeToCheckmate attribute to true
+     */
+    public void highLightCheckMatePieces() {
+<span class="fc" id="L210">        ArrayList&lt;Piece&gt; pieces = new ArrayList&lt;Piece&gt;();</span>
+<span class="fc" id="L211">        King king = getKing();</span>
+
+        // find attacking piece
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        for (Piece attackingP: Board.allPieces) {</span>
+<span class="fc bfc" id="L215" title="All 4 branches covered.">            if (!attackingP.hasSameColour(king) &amp;&amp; attackingP.validCaptures().contains(king)) {</span>
+<span class="fc" id="L216">                pieces.add(attackingP);</span>
+<span class="fc" id="L217">                break;</span>
+            }
+<span class="fc" id="L219">        }</span>
+
+        // find opponent pieces that defending king's adjacent squares
+        // keys are king's adjacent squares, values are list of opponent pieces that defending
+        // the squares
+<span class="fc" id="L224">        HashMap&lt;Integer[], ArrayList&lt;Piece&gt;&gt; squareMap = new HashMap&lt;Integer[], ArrayList&lt;Piece&gt;&gt;();</span>
+        // keys are opponent pieces that defending king's adjacents squares
+        // values are number of defending squares
+<span class="fc" id="L227">        HashMap&lt;Piece, Integer&gt; pieceMap = new HashMap&lt;Piece, Integer&gt;();</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">        for (int[] square: king.allMoves()) {</span>
+<span class="fc" id="L229">            int x = square[0];</span>
+<span class="fc" id="L230">            int y = square[1];</span>
+            // skip if the square is covered by attacking pieces
+<span class="fc" id="L232">            boolean covered = false;</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">            for (Piece pieceA: pieces) {</span>
+                // simulation
+<span class="fc" id="L235">                int originalX = king.getX();</span>
+<span class="fc" id="L236">                int originalY = king.getY();</span>
+<span class="fc" id="L237">                king.setX(x);</span>
+<span class="fc" id="L238">                king.setY(y);</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">                if (pieceA.validCaptures().contains(king)) {</span>
+<span class="fc" id="L240">                    covered = true;</span>
+                }
+<span class="fc" id="L242">                king.setX(originalX);</span>
+<span class="fc" id="L243">                king.setY(originalY);</span>
+<span class="fc" id="L244">            }</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">            if (covered) {</span>
+<span class="fc" id="L246">                continue;</span>
+            }
+<span class="fc" id="L248">            Piece overlapP = Board.getPieceByLocation(x, y);</span>
+            // king's empty adjacent squares
+<span class="fc bfc" id="L250" title="All 2 branches covered.">            if (overlapP == null) {</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">                for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L252" title="All 2 branches covered.">                    if (!piece.hasSameColour(king)) {</span>
+                        // simulation
+<span class="fc" id="L254">                        int originalX = king.getX();</span>
+<span class="fc" id="L255">                        int originalY = king.getY();</span>
+<span class="fc" id="L256">                        king.setX(x);</span>
+<span class="fc" id="L257">                        king.setY(y);</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">                        if (piece.validCaptures().contains(king)) {</span>
+<span class="fc" id="L259">                            boolean isInSqMap = false;</span>
+                            // update squareMap
+<span class="fc bfc" id="L261" title="All 2 branches covered.">                            for (Integer[] sq: squareMap.keySet()) {</span>
+<span class="fc bfc" id="L262" title="All 4 branches covered.">                                if (sq[0] == x &amp;&amp; sq[1] == y) {</span>
+<span class="fc" id="L263">                                    squareMap.get(sq).add(piece);</span>
+<span class="fc" id="L264">                                    isInSqMap = true;</span>
+<span class="fc" id="L265">                                    break;</span>
+                                }
+<span class="fc" id="L267">                            }</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">                            if (!isInSqMap) {</span>
+<span class="fc" id="L269">                                squareMap.put(new Integer[] {x, y}, new ArrayList&lt;Piece&gt;() {{add(piece);}});</span>
+                            }
+                            // update pieceMap
+<span class="fc bfc" id="L272" title="All 2 branches covered.">                            if (!pieceMap.containsKey(piece)) {</span>
+<span class="fc" id="L273">                                pieceMap.put(piece, 1);</span>
+                            } else {
+<span class="fc" id="L275">                                pieceMap.put(piece, pieceMap.get(piece) + 1);</span>
+                            }
+                        }
+<span class="fc" id="L278">                        king.setX(originalX);</span>
+<span class="fc" id="L279">                        king.setY(originalY);</span>
+                    }
+<span class="fc" id="L281">                }</span>
+            }
+<span class="fc" id="L283">        }</span>
+
+        // find optimal pieces that control king's adjacent squares
+<span class="fc bfc" id="L286" title="All 2 branches covered.">        while (!squareMap.isEmpty()) {</span>
+<span class="fc" id="L287">            Integer[] minKey = null;</span>
+<span class="fc" id="L288">            double minLength = Double.POSITIVE_INFINITY;</span>
+
+            // find piece list with smallest length
+<span class="fc bfc" id="L291" title="All 2 branches covered.">            for (Integer[] k: squareMap.keySet()) {</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">                if (squareMap.get(k).size() &lt; minLength) {</span>
+<span class="fc" id="L293">                    minKey = k;</span>
+<span class="fc" id="L294">                    minLength = squareMap.get(k).size();</span>
+                }
+<span class="fc" id="L296">            }</span>
+
+            // find piece with highest control squares
+<span class="fc" id="L299">            Piece choseP = null;</span>
+<span class="fc" id="L300">            double maxSquares = Double.NEGATIVE_INFINITY;</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">            for (Piece piece: squareMap.get(minKey)) {</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">                if (pieceMap.get(piece) &gt; maxSquares) {</span>
+<span class="fc" id="L303">                    choseP = piece;</span>
+<span class="fc" id="L304">                    maxSquares = pieceMap.get(piece);</span>
+                }
+<span class="fc" id="L306">            }</span>
+
+<span class="pc bpc" id="L308" title="1 of 4 branches missed.">            if (choseP != null &amp;&amp; !pieces.contains(choseP)) {</span>
+<span class="fc" id="L309">                pieces.add(choseP);</span>
+            }
+<span class="fc" id="L311">            squareMap.remove(minKey);</span>
+<span class="fc" id="L312">        }</span>
+
+        // find opponent protecting pieces
+<span class="fc bfc" id="L315" title="All 2 branches covered.">        for (int[] square: king.allMoves()) {</span>
+<span class="fc" id="L316">            int x = square[0];</span>
+<span class="fc" id="L317">            int y = square[1];</span>
+<span class="fc" id="L318">            Piece overlapP = Board.getPieceByLocation(x, y);</span>
+<span class="fc bfc" id="L319" title="All 2 branches covered.">            if (overlapP != null) {</span>
+<span class="fc" id="L320">                ArrayList&lt;Piece&gt; protectors = overlapP.getDefendPieces(king);</span>
+                // check if one of the protectors is in the pieces list
+<span class="fc" id="L322">                boolean found = false;</span>
+<span class="fc bfc" id="L323" title="All 2 branches covered.">                for (Piece protector: protectors) {</span>
+<span class="fc bfc" id="L324" title="All 2 branches covered.">                    if (pieces.contains(protector)) {</span>
+<span class="fc" id="L325">                        found = true;</span>
+<span class="fc" id="L326">                        break;</span>
+                    }
+<span class="fc" id="L328">                }</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">                if (!found) {</span>
+<span class="fc" id="L330">                    pieces.add(protectors.get(0));</span>
+                }
+            }
+<span class="fc" id="L333">        }</span>
+
+<span class="fc bfc" id="L335" title="All 2 branches covered.">        for (Piece piece: pieces) {</span>
+<span class="fc" id="L336">            piece.setContributeToCheckMate(true);</span>
+<span class="fc" id="L337">        }</span>
+
+<span class="fc" id="L339">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

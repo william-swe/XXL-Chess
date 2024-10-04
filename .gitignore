@@ -1,0 +1,12 @@
+# Ignore .DS_Store files
+.DS_Store
+
+# Ignore all .zip files
+*.zip
+
+# Ignore gradle and vscode hidden files
+.gradle
+.vscode
+
+# Ignore "Superseded" folder
+Superseded

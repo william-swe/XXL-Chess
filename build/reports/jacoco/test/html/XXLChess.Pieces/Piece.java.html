@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Piece.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">home</a> &gt; <a href="index.source.html" class="el_package">XXLChess.Pieces</a> &gt; <span class="el_source">Piece.java</span></div><h1>Piece.java</h1><pre class="source lang-java linenums">package XXLChess.Pieces;
+
+import processing.core.PApplet;
+import processing.core.PImage;
+
+import java.util.*;
+import java.lang.Math;
+
+import XXLChess.App;
+import XXLChess.Board;
+import XXLChess.Utilities.MoveFactory;
+
+public abstract class Piece {
+    /**
+     * Piece's name
+     */
+    private String name;
+    /**
+     * Piece's value
+     */
+    private double value;
+    /**
+     * Piece's colour
+     */
+    private String colour;
+    /**
+     * Piece's x coordinate
+     */
+    private int x;
+    /**
+     * Piece's y coordinate
+     */
+    private int y;
+    /**
+     * Piece's previous position
+     */
+    private int[] prevPos;
+    /**
+     * Piece's number of successful moves
+     */
+    private int moveCount;
+    /**
+     * Piece's image
+     */
+    private PImage image;
+    /**
+     * Marks if piece is selected by a player
+     */
+    private boolean isSelected;
+    /**
+     * Marks if piece is the last piece to move
+     */
+    private boolean isLast;
+    /**
+     * Marks if piece is captured
+     */
+    private boolean isCaptured;
+    /**
+     * Marks if piece contributes checkmate
+     */
+    private boolean contributeToCheckMate;
+    /**
+     * Marks if piece is moving by a player
+     */
+    private boolean isMoving;
+    /**
+     * Moving position
+     */
+    private double[] movingPos;
+    /**
+     * Moving velocity
+     */
+    private double vel;
+
+    /**
+     * Piece constructor, initializes name, value, colour, coordinates, image and other attributes
+     * @param name, name of the piece
+     * @param value, value of the piece
+     * @param colour, colour of the piece
+     * @param x, x coordinate
+     * @param y, y coordinate
+     * @param image, image
+     */
+<span class="fc" id="L84">    public Piece(String name, double value, String colour, int x, int y, PImage image) {</span>
+<span class="fc" id="L85">        this.name = name;</span>
+<span class="fc" id="L86">        this.value = value;</span>
+<span class="fc" id="L87">        this.colour = colour;</span>
+<span class="fc" id="L88">        this.x = x;</span>
+<span class="fc" id="L89">        this.y = y;</span>
+<span class="fc" id="L90">        this.moveCount = 0;</span>
+<span class="fc" id="L91">        this.image = image;</span>
+<span class="fc" id="L92">        this.prevPos = new int[2];</span>
+<span class="fc" id="L93">        this.isSelected = false;</span>
+<span class="fc" id="L94">        this.isLast = false;</span>
+<span class="fc" id="L95">        this.isCaptured = false;</span>
+<span class="fc" id="L96">        this.contributeToCheckMate = false;</span>
+<span class="fc" id="L97">        this.isMoving = false;</span>
+<span class="fc" id="L98">        this.movingPos = new double[2];</span>
+<span class="fc" id="L99">        this.vel = App.PIECE_MOVEMENT_SPEED;</span>
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Returns piece's name
+     * @return piece's name
+     */
+    public String getName() {
+<span class="fc" id="L107">        return this.name;</span>
+    }
+
+    /**
+     * Returns piece's value
+     * @return piece's value
+     */
+    public double getValue() {
+<span class="fc" id="L115">        return this.value;</span>
+    }
+
+    /**
+     * Returns piece's colour
+     * @return piece's colour
+     */
+    public String getColour() {
+<span class="fc" id="L123">        return this.colour;</span>
+    }
+
+    /**
+     * Returns piece's image
+     * @return piece's image
+     */
+    public PImage getImage() {
+<span class="fc" id="L131">        return this.image;</span>
+    }
+
+    /**
+     * Returns piece's x coordinate
+     * @return piece's x coordinate
+     */
+    public int getX() {
+<span class="fc" id="L139">        return this.x;</span>
+    }
+
+    /**
+     * Sets piece's x coordinate
+     * @param newX, new x coordinate
+     */
+    public void setX(int newX) {
+<span class="fc" id="L147">        this.x = newX;</span>
+<span class="fc" id="L148">    }</span>
+
+    /**
+     * Returns piece's y coordinate
+     * @return piece's y coordinate
+     */
+    public int getY() {
+<span class="fc" id="L155">        return this.y;</span>
+    }
+
+    /**
+     * Sets piece's y coordinate
+     * @param newY, new y coordinate
+     */
+    public void setY(int newY) {
+<span class="fc" id="L163">        this.y = newY;</span>
+<span class="fc" id="L164">    }</span>
+
+    /**
+     * Gets piece's previous position
+     * @return piece's previous position
+     */
+    public int[] getPrevPos() {
+<span class="fc" id="L171">        return this.prevPos;</span>
+    }
+
+    /**
+     * Sets piece's previous position if the given position is valid
+     * @param prevPos, previous position
+     * @return true or false
+     */
+    public boolean setPrevPos(int[] prevPos) {
+<span class="fc" id="L180">        int x = prevPos[0];</span>
+<span class="fc" id="L181">        int y = prevPos[1];</span>
+
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        if (Board.isValidPosition(x, y)) {</span>
+<span class="fc" id="L184">            this.prevPos[0] = x;</span>
+<span class="fc" id="L185">            this.prevPos[1] = y;</span>
+<span class="fc" id="L186">            return true;</span>
+        }
+
+<span class="fc" id="L189">        return false;</span>
+    }
+
+    /**
+     * Returns move count
+     * @return move count
+     */
+    public int getMoveCount() {
+<span class="fc" id="L197">        return this.moveCount;</span>
+    }
+    
+    /**
+     * Increments move count by 1
+     */
+    public void incrementMoveCount() {
+<span class="fc" id="L204">        this.moveCount++;</span>
+<span class="fc" id="L205">    }</span>
+
+    /**
+     * Returns true if piece has moved, otherwise, false
+     * @return true or false
+     */
+    public boolean hasMoved() {
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        return getMoveCount() &gt; 0;</span>
+    }
+
+    /**
+     * Returns true if piece is selected, otherwise, false
+     * @return true or false
+     */
+    public boolean isSelected() {
+<span class="fc" id="L220">        return this.isSelected;</span>
+    }
+
+    /**
+     * Sets piece selected status
+     * @param isSelected, piece selected status
+     */
+    public void setSelected(boolean isSelected) {
+<span class="fc" id="L228">        this.isSelected = isSelected;</span>
+<span class="fc" id="L229">    }</span>
+
+    /**
+     * Returns true if piece is the last one to move, otherwise, false
+     * @return true or false
+     */
+    public boolean isLast() {
+<span class="fc" id="L236">        return this.isLast;</span>
+    }
+
+    /**
+     * Sets last status
+     * @param isLast, given last status
+     */
+    public void setLast(boolean isLast) {
+<span class="fc" id="L244">        this.isLast = isLast;</span>
+<span class="fc" id="L245">    }</span>
+
+    /**
+     * Returns true if piece is captured, otherwise, false
+     * @return true or false
+     */
+    public boolean isCaptured() {
+<span class="fc" id="L252">        return this.isCaptured;</span>
+    }
+
+    /**
+     * Sets captured status
+     * @param isCaptured, given captured status
+     */
+    public void setCaptured(boolean isCaptured) {
+<span class="fc" id="L260">        this.isCaptured = isCaptured;</span>
+<span class="fc" id="L261">    }</span>
+
+    /**
+     * Returns true if piece contributes to checkmate, otherwise, false
+     * @return true or false
+     */
+    public boolean contributeToCheckMate() {
+<span class="fc" id="L268">        return this.contributeToCheckMate;</span>
+    }
+
+    /**
+     * Sets contribute-to-checkmate status
+     * @param contributeToCheckMate, given contribute-to-checkmate status
+     */
+    public void setContributeToCheckMate(boolean contributeToCheckMate) {
+<span class="fc" id="L276">        this.contributeToCheckMate = contributeToCheckMate;</span>
+<span class="fc" id="L277">    }</span>
+
+    /**
+     * Returns true if piece is moving, otherwise, false
+     * @return true or false
+     */
+    public boolean isMoving() {
+<span class="fc" id="L284">        return this.isMoving;</span>
+    }
+
+    /**
+     * Sets moving status
+     * @param isMoving, given moving status
+     */
+    public void setMoving(boolean isMoving) {
+<span class="fc" id="L292">        this.isMoving = isMoving;</span>
+<span class="fc" id="L293">    }</span>
+
+    /**
+     * Returns a list of all moves (including valid and legal moves)
+     * @return a list of all moves
+     */
+    public ArrayList&lt;int[]&gt; allMoves() {
+<span class="fc" id="L300">        return MoveFactory.allMoves(this);</span>
+    }
+
+    /**
+     * Returns a list of opponent pieces that piece can capture
+     * @return a list of opponent pieces that can be captured
+     */
+    public ArrayList&lt;Piece&gt; allCaptures() {
+<span class="fc" id="L308">        return MoveFactory.allCaptures(this);</span>
+    }
+
+    /**
+     * Returns moving position
+     * @return moving position
+     */
+    public double[] getMovingPos() {
+<span class="fc" id="L316">        return this.movingPos;</span>
+    }
+
+    /**
+     * Sets moving position
+     * @param movingPos, given moving position
+     */
+    public void setMovingPos(double[] movingPos) {
+<span class="fc" id="L324">        this.movingPos[0] = movingPos[0];</span>
+<span class="fc" id="L325">        this.movingPos[1] = movingPos[1];</span>
+<span class="fc" id="L326">    }</span>
+
+    /**
+     * Gets velocity
+     * @return velocity
+     */
+    public double getVel() {
+<span class="fc" id="L333">        return this.vel;</span>
+    }
+
+    /**
+     * Sets velocity
+     * @param vel, given velocity
+     */
+    public void setVel(double vel) {
+<span class="fc" id="L341">        this.vel = vel;</span>
+<span class="fc" id="L342">    }</span>
+
+    /**
+     * Draws and highlights piece
+     * @param app, application
+     */
+    public void draw(PApplet app) {
+<span class="fc bfc" id="L349" title="All 2 branches covered.">        if (isSelected()) highLightSelected(app);</span>
+<span class="fc bfc" id="L350" title="All 2 branches covered.">        if (isLast()) highLightLast(app);</span>
+<span class="pc bpc" id="L351" title="1 of 2 branches missed.">        if (contributeToCheckMate()) highLightCheckMate(app);</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">        if (this instanceof King) {</span>
+<span class="fc" id="L353">            King king = (King) this;</span>
+<span class="pc bpc" id="L354" title="3 of 6 branches missed.">            if (king.isCheck() &amp;&amp; (!king.isSelected() || king.flashing())) {</span>
+<span class="fc" id="L355">                king.highLightCheck(app);</span>
+            }
+        }
+<span class="fc bfc" id="L358" title="All 2 branches covered.">        if (!isMoving()) {</span>
+<span class="fc" id="L359">            app.image(getImage(), getX()*App.CELLSIZE, getY()*App.CELLSIZE);</span>
+        } else {
+<span class="fc" id="L361">            double startX = getMovingPos()[0];</span>
+<span class="fc" id="L362">            double startY = getMovingPos()[1];</span>
+<span class="fc" id="L363">            int endX = getX() * App.CELLSIZE;</span>
+<span class="fc" id="L364">            int endY = getY() * App.CELLSIZE;</span>
+<span class="fc" id="L365">            double distance = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2));</span>
+
+            // reach destination
+<span class="fc bfc" id="L368" title="All 2 branches covered.">            if (distance &lt; getVel()) {</span>
+<span class="fc" id="L369">                setMoving(false);</span>
+            } else {
+<span class="fc bfc" id="L371" title="All 2 branches covered.">                if (startX == endX) {</span>
+                    double newY;
+                    // update new moving position
+<span class="pc bpc" id="L374" title="1 of 2 branches missed.">                    if (startY &lt; endY) {</span>
+<span class="fc" id="L375">                        newY = startY + getVel();</span>
+                    } else {
+<span class="nc" id="L377">                        newY = startY - getVel();</span>
+                    }
+<span class="fc" id="L379">                    setMovingPos(new double[] {startX, newY});</span>
+<span class="fc" id="L380">                } else {</span>
+                    // equation of line from start and end
+<span class="fc" id="L382">                    double m = (startY - endY) / (startX - endX);</span>
+<span class="fc" id="L383">                    double c = startY - m * startX;</span>
+
+                    double newX;
+                    // update new moving position
+<span class="pc bpc" id="L387" title="1 of 2 branches missed.">                    if (startX &lt; endX) {</span>
+<span class="fc" id="L388">                        newX = startX + getVel();</span>
+                    } else {
+<span class="nc" id="L390">                        newX = startX - getVel();</span>
+                    }
+                    
+<span class="fc" id="L393">                    setMovingPos(new double[] {newX, m * newX + c});</span>
+                }
+<span class="fc" id="L395">                app.image(getImage(), (float) getMovingPos()[0], (float) getMovingPos()[1]);</span>
+            }
+        }
+<span class="fc" id="L398">    }</span>
+
+    /**
+     * Highlights if piece is selected, if piece is king and flashing then flash king instead
+     * @param app
+     */
+    private void highLightSelected(PApplet app) {
+<span class="fc" id="L405">        boolean isKingFlashing = false;</span>
+<span class="pc bpc" id="L406" title="1 of 2 branches missed.">        if (this instanceof King) {</span>
+<span class="nc" id="L407">            King king = (King) this;</span>
+<span class="nc bnc" id="L408" title="All 2 branches missed.">            if (king.flashing()) {</span>
+<span class="nc" id="L409">                isKingFlashing = true;</span>
+            }
+        }
+<span class="pc bpc" id="L412" title="1 of 2 branches missed.">        if (!isKingFlashing) {</span>
+<span class="fc" id="L413">            app.fill(App.GREENRGB[0], App.GREENRGB[1], App.GREENRGB[2]);</span>
+<span class="fc" id="L414">            app.rect(getX()*App.CELLSIZE, getY()*App.CELLSIZE, App.CELLSIZE, App.CELLSIZE);</span>
+        }
+<span class="fc" id="L416">        highLightValidMoves(app);</span>
+<span class="fc" id="L417">    }</span>
+
+    /**
+     * Highlights valid moves when piece is selected
+     * @param app
+     */
+    private void highLightValidMoves(PApplet app) {
+<span class="fc" id="L424">        ArrayList&lt;int[]&gt; validMoves = validMoves();</span>
+
+<span class="fc bfc" id="L426" title="All 2 branches covered.">        for (int[] square: validMoves) {</span>
+<span class="fc" id="L427">            int x = square[0];</span>
+<span class="fc" id="L428">            int y = square[1];</span>
+<span class="fc" id="L429">            Piece overlapP = Board.getPieceByLocation(x, y);</span>
+<span class="pc bpc" id="L430" title="1 of 2 branches missed.">            if (overlapP == null) {</span>
+                // highlights squares
+<span class="fc" id="L432">                app.fill((float) App.BLUERGB[0], (float) App.BLUERGB[1], </span>
+                        (float) App.BLUERGB[2], (float) 180);
+<span class="fc" id="L434">                app.rect(x*App.CELLSIZE, y*App.CELLSIZE, App.CELLSIZE, App.CELLSIZE);</span>
+            } else {
+                // highlights captured pieces
+<span class="nc" id="L437">                app.fill(App.ORANGERGB[0], App.ORANGERGB[1], App.ORANGERGB[2]);</span>
+<span class="nc" id="L438">                app.rect(x*App.CELLSIZE, y*App.CELLSIZE, App.CELLSIZE, App.CELLSIZE);</span>
+<span class="nc" id="L439">                app.image(overlapP.getImage(), x*App.CELLSIZE, y*App.CELLSIZE);</span>
+            }
+<span class="fc" id="L441">        }</span>
+<span class="fc" id="L442">    }</span>
+
+    /**
+     * Highlights last moved piece
+     * @param app
+     */
+    private void highLightLast(PApplet app) {
+<span class="fc" id="L449">        app.fill(App.YELLOWRGB[0], App.YELLOWRGB[1], App.YELLOWRGB[2]);</span>
+        // not highlight piece if it is under attack by another piece or 
+        // it contributes to checkmate
+<span class="pc bpc" id="L452" title="2 of 4 branches missed.">        if (!overlapCapture() &amp;&amp; !contributeToCheckMate()) {</span>
+<span class="fc" id="L453">            app.rect(getX()*App.CELLSIZE, getY()*App.CELLSIZE, App.CELLSIZE, App.CELLSIZE);</span>
+        }
+        
+        // highlight piece's last square if it is not overlaping with other piece's highlight squares
+<span class="pc bpc" id="L457" title="1 of 2 branches missed.">        if (!overlapSelect()) {</span>
+<span class="fc" id="L458">            int x = getPrevPos()[0];</span>
+<span class="fc" id="L459">            int y = getPrevPos()[1];</span>
+<span class="fc" id="L460">            app.rect(x*App.CELLSIZE, y*App.CELLSIZE, App.CELLSIZE, App.CELLSIZE);</span>
+        }
+<span class="fc" id="L462">    }</span>
+
+    /**
+     * Returns true if piece is under attack by a selecting piece
+     * @return true or false
+     */
+    public boolean overlapCapture() {
+<span class="fc bfc" id="L469" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L470" title="All 4 branches covered.">            if (piece.isSelected() &amp;&amp; piece.validCaptures().contains(this)) {</span>
+<span class="fc" id="L471">                return true;</span>
+            }
+<span class="fc" id="L473">        }</span>
+
+<span class="fc" id="L475">        return false;</span>
+    }
+
+    /**
+     * Returns true if a selecting piece has highlighting moves that matches piece's last square
+     * @return true or false
+     */
+    public boolean overlapSelect() {
+<span class="fc bfc" id="L483" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L484" title="All 2 branches covered.">            if (piece.isSelected()) {</span>
+<span class="fc bfc" id="L485" title="All 2 branches covered.">                for (int[] square: piece.validMoves()) {</span>
+<span class="fc bfc" id="L486" title="All 4 branches covered.">                    if (square[0] == getPrevPos()[0] &amp;&amp; square[1] == getPrevPos()[1]) {</span>
+<span class="fc" id="L487">                        return true;</span>
+                    }
+<span class="fc" id="L489">                }</span>
+            }
+<span class="fc" id="L491">        }</span>
+
+<span class="fc" id="L493">        return false;</span>
+    }
+
+    /**
+     * Highlights if piece contributes to checkmate opponent king
+     * @param app
+     */
+    private void highLightCheckMate(PApplet app) {
+<span class="nc" id="L501">        app.fill(App.ORANGERGB[0], App.ORANGERGB[1], App.ORANGERGB[2]);</span>
+<span class="nc" id="L502">        app.rect(getX()*App.CELLSIZE, getY()*App.CELLSIZE, App.CELLSIZE, App.CELLSIZE);</span>
+<span class="nc" id="L503">    }</span>
+
+    /**
+     * Returns true if piece can move to the given coordinates, otherwise, false
+     * @param newX, new x
+     * @param newY, new y
+     * @return true or false
+     */
+    public boolean move(int newX, int newY) {
+<span class="fc" id="L512">        ArrayList&lt;int[]&gt; validMoves = validMoves();</span>
+<span class="fc bfc" id="L513" title="All 2 branches covered.">        for (int[] square: validMoves) {</span>
+<span class="fc bfc" id="L514" title="All 4 branches covered.">            if (square[0] == newX &amp;&amp; square[1] == newY) {</span>
+<span class="fc" id="L515">                Piece overlapP = Board.getPieceByLocation(newX, newY);</span>
+<span class="fc bfc" id="L516" title="All 2 branches covered.">                if (overlapP != null) {</span>
+                    // capture a piece
+<span class="fc" id="L518">                    overlapP.setCaptured(true);</span>
+<span class="fc bfc" id="L519" title="All 2 branches covered.">                } else if (this instanceof King) {</span>
+<span class="fc" id="L520">                    King k = (King) this;</span>
+                    // castling move
+<span class="fc bfc" id="L522" title="All 2 branches covered.">                    if (k.isCastlingMove(newX, newY)) {</span>
+<span class="fc" id="L523">                        k.castling(newX, newY);</span>
+                    }
+                }
+<span class="fc" id="L526">                setMoving(true);</span>
+<span class="fc" id="L527">                setMovingPos(new double[] {getX() * App.CELLSIZE, getY() * App.CELLSIZE});</span>
+<span class="fc" id="L528">                setPrevPos(new int[] {getX(), getY()});</span>
+<span class="fc" id="L529">                setX(newX);</span>
+<span class="fc" id="L530">                setY(newY);</span>
+<span class="fc" id="L531">                adjustVel();</span>
+<span class="fc" id="L532">                incrementMoveCount();</span>
+<span class="fc" id="L533">                return true;</span>
+            }
+<span class="fc" id="L535">        }</span>
+
+<span class="fc" id="L537">        return false;</span>
+    }
+
+    /**
+     * Adjust velocity such as it is within max movement time
+     */
+    public void adjustVel() {
+<span class="fc bfc" id="L544" title="All 2 branches covered.">        if (isMoving()) {</span>
+<span class="fc" id="L545">            double startX = getMovingPos()[0];</span>
+<span class="fc" id="L546">            double startY = getMovingPos()[1];</span>
+<span class="fc" id="L547">            int endX = getX() * App.CELLSIZE;</span>
+<span class="fc" id="L548">            int endY = getY() * App.CELLSIZE;</span>
+<span class="fc" id="L549">            double currentVel = getVel();</span>
+<span class="fc" id="L550">            Double frDouble = App.FPS * App.MAX_MOVEMENT_TIME;</span>
+<span class="fc" id="L551">            int frames = frDouble.intValue();</span>
+            
+            // simulation
+            while (true) {
+<span class="fc" id="L555">                int count = 0;  // count number of frames per second</span>
+<span class="fc" id="L556">                double currentX = startX;</span>
+<span class="fc" id="L557">                double currentY = startY;</span>
+<span class="fc" id="L558">                double distance = Math.sqrt(Math.pow(currentX - endX, 2) + Math.pow(currentY - endY, 2));</span>
+
+<span class="fc bfc" id="L560" title="All 2 branches covered.">                while (distance &gt; currentVel) {</span>
+<span class="fc bfc" id="L561" title="All 2 branches covered.">                    if (currentX == endX) {</span>
+<span class="fc bfc" id="L562" title="All 2 branches covered.">                        if (currentY &lt; endY) {</span>
+<span class="fc" id="L563">                            currentY = currentY + currentVel;</span>
+                        } else {
+<span class="fc" id="L565">                            currentY = currentY - currentVel;</span>
+                        }
+                    } else {
+                        // equation of line from start and end
+<span class="fc" id="L569">                        double m = (startY - endY) / (startX - endX);</span>
+<span class="fc" id="L570">                        double c = startY - m * startX;</span>
+    
+<span class="fc bfc" id="L572" title="All 2 branches covered.">                        if (currentX &lt; endX) {</span>
+<span class="fc" id="L573">                            currentX = currentX + currentVel;</span>
+                        } else {
+<span class="fc" id="L575">                            currentX = currentX - currentVel;</span>
+                        }
+                        
+<span class="fc" id="L578">                        currentY = m * currentX + c;</span>
+                    }
+<span class="fc" id="L580">                    distance = Math.sqrt(Math.pow(currentX - endX, 2) + Math.pow(currentY - endY, 2));</span>
+<span class="fc" id="L581">                    count++;</span>
+                }
+
+<span class="fc bfc" id="L584" title="All 2 branches covered.">                if (count &gt;= frames) {</span>
+<span class="fc" id="L585">                    currentVel += 1;</span>
+                } else {
+<span class="fc" id="L587">                    setVel(currentVel);</span>
+<span class="fc" id="L588">                    break;</span>
+                }
+<span class="fc" id="L590">            }</span>
+        }
+<span class="fc" id="L592">    }</span>
+
+    /**
+     * Returns true if the given piece has same colour, otherwise, false
+     * @param piece, given piece
+     * @return true or false
+     */
+    public boolean hasSameColour(Piece piece) {
+<span class="fc bfc" id="L600" title="All 4 branches covered.">        return piece != null &amp;&amp; piece.getColour().equals(colour);</span>
+    }
+
+    /**
+     * Returns king
+     * @return king
+     */
+    public King getKing() {
+<span class="fc bfc" id="L608" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L609" title="All 4 branches covered.">            if (piece instanceof King &amp;&amp; piece.hasSameColour(this)) {</span>
+<span class="fc" id="L610">                King king = (King) piece;</span>
+<span class="fc" id="L611">                return king;</span>
+            }
+<span class="fc" id="L613">        }</span>
+
+<span class="fc" id="L615">        return null;</span>
+    }
+
+    /**
+     * Returns true if the given coordinates is safe, otherwise, false
+     * a square is unsafe if it is defended by piece with lower value or
+     * it is defended by piece with higher value and not protected
+     * @param x, x coordinate
+     * @param y, y coordinate
+     * @return true or false
+     */
+    public boolean isSafeSquare(int x, int y) {
+<span class="fc" id="L627">        boolean isSafe = true;</span>
+        // simulation, move piece to new location and check if it is safe
+<span class="fc" id="L629">        Piece overlapP = Board.getPieceByLocation(x, y);</span>
+<span class="fc" id="L630">        int originalX = getX();</span>
+<span class="fc" id="L631">        int originalY = getY();</span>
+<span class="fc" id="L632">        int newX = x;</span>
+<span class="fc" id="L633">        int newY = y;</span>
+<span class="fc" id="L634">        setX(newX);</span>
+<span class="fc" id="L635">        setY(newY);</span>
+<span class="fc bfc" id="L636" title="All 4 branches covered.">        if (overlapP != null &amp;&amp; overlapP != this) {</span>
+<span class="fc" id="L637">            overlapP.setX(App.BOARD_WIDTH + 1);</span>
+<span class="fc" id="L638">            overlapP.setY(-1 - App.BOARD_WIDTH);</span>
+        }
+<span class="fc bfc" id="L640" title="All 2 branches covered.">        for (Piece opponentP: Board.allPieces) {</span>
+<span class="fc bfc" id="L641" title="All 4 branches covered.">            if (!opponentP.hasSameColour(this) &amp;&amp; opponentP.validCaptures().contains(this)) {</span>
+                // the square is controlled by a piece with lower value or
+                // is controlled by piece with &gt;= value and undefended is unsafe
+<span class="fc bfc" id="L644" title="All 4 branches covered.">                if (opponentP.getValue() &lt; getValue() || getDefendPieces(opponentP).isEmpty()) {</span>
+<span class="fc" id="L645">                        isSafe = false;</span>
+<span class="fc" id="L646">                        break;</span>
+                }
+            }
+<span class="fc" id="L649">        }</span>
+<span class="fc" id="L650">        setX(originalX);</span>
+<span class="fc" id="L651">        setY(originalY);</span>
+<span class="fc bfc" id="L652" title="All 2 branches covered.">        if (overlapP != null) {</span>
+<span class="fc" id="L653">            overlapP.setX(newX);</span>
+<span class="fc" id="L654">            overlapP.setY(newY);</span>
+        }
+
+<span class="fc" id="L657">        return isSafe;</span>
+    }
+
+    /**
+     * Returns true if piece can move to a safe square, otherwise, false
+     * @return true or false
+     */
+    public boolean moveToSafeSquare() {
+<span class="fc bfc" id="L665" title="All 2 branches covered.">        for (int[] square: validMoves()) {</span>
+<span class="fc" id="L666">            int x = square[0];</span>
+<span class="fc" id="L667">            int y = square[1];</span>
+<span class="fc bfc" id="L668" title="All 2 branches covered.">            if (isSafeSquare(x, y)) {</span>
+<span class="fc" id="L669">                move(x, y);</span>
+<span class="fc" id="L670">                return true;</span>
+            }
+<span class="fc" id="L672">        }</span>
+
+<span class="fc" id="L674">        return false;</span>
+    }
+
+    /**
+     * Given an opponent piece, returns a list of comrades that can protect the under-attack piece
+     * @param attackP, attacking piece
+     * @return list of protecting pieces
+     */
+    public ArrayList&lt;Piece&gt; getDefendPieces(Piece attackP) {
+<span class="fc" id="L683">        ArrayList&lt;Piece&gt; protectors = new ArrayList&lt;Piece&gt;();</span>
+        // simulation, replace piece by the attacking piece
+<span class="fc" id="L685">        int originalX = getX();</span>
+<span class="fc" id="L686">        int originalY = getY();</span>
+<span class="fc" id="L687">        int opponentX = attackP.getX();</span>
+<span class="fc" id="L688">        int opponentY = attackP.getY();</span>
+<span class="fc" id="L689">        setX(App.BOARD_WIDTH + 1);</span>
+<span class="fc" id="L690">        setY(-1 - App.BOARD_WIDTH);</span>
+<span class="fc" id="L691">        attackP.setX(originalX);</span>
+<span class="fc" id="L692">        attackP.setY(originalY);</span>
+
+<span class="fc bfc" id="L694" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L695" title="All 4 branches covered.">            if (piece.hasSameColour(this) &amp;&amp; piece.validCaptures().contains(attackP)) {</span>
+<span class="fc" id="L696">                protectors.add(piece);</span>
+            }
+<span class="fc" id="L698">        }</span>
+<span class="fc" id="L699">        setX(originalX);</span>
+<span class="fc" id="L700">        setY(originalY);</span>
+<span class="fc" id="L701">        attackP.setX(opponentX);</span>
+<span class="fc" id="L702">        attackP.setY(opponentY);</span>
+
+<span class="fc" id="L704">        return protectors;</span>
+    }
+
+    /**
+     * Returns true if piece is not pinned if it moves to the given position, otherwise, false
+     * @param x, x coordinate
+     * @param y, y coordinate
+     * @return true or false
+     */
+    protected boolean notPinned(int x, int y) {
+        // simulation, move piece to new position and check king's status
+<span class="fc" id="L715">        int originalX = getX();</span>
+<span class="fc" id="L716">        int originalY = getY();</span>
+<span class="fc" id="L717">        setX(x);</span>
+<span class="fc" id="L718">        setY(y);</span>
+<span class="fc" id="L719">        King king = getKing();</span>
+<span class="fc bfc" id="L720" title="All 2 branches covered.">        boolean block = !king.isCheck();</span>
+<span class="fc" id="L721">        setX(originalX);</span>
+<span class="fc" id="L722">        setY(originalY);</span>
+
+<span class="fc" id="L724">        return block;</span>
+    }
+
+    /**
+     * Returns true if piece can capture the given opponent piece without putting king in danger,
+     * otherwise, false
+     * @param attacker, attacking piece
+     * @return true or false
+     */
+    protected boolean captureAttacker(Piece attacker) {
+        // simulation, replace opponent piece by this piece
+<span class="fc" id="L735">        int originalX = getX();</span>
+<span class="fc" id="L736">        int originalY = getY();</span>
+<span class="fc" id="L737">        int attackerX = attacker.getX();</span>
+<span class="fc" id="L738">        int attackerY = attacker.getY();</span>
+<span class="fc" id="L739">        setX(attackerX);</span>
+<span class="fc" id="L740">        setY(attackerY);</span>
+<span class="fc" id="L741">        attacker.setX(App.BOARD_WIDTH + 1);</span>
+<span class="fc" id="L742">        attacker.setY(-1 - App.BOARD_WIDTH);</span>
+<span class="fc" id="L743">        King king = getKing();</span>
+<span class="fc bfc" id="L744" title="All 2 branches covered.">        boolean capture = !king.isCheck();</span>
+<span class="fc" id="L745">        setX(originalX);</span>
+<span class="fc" id="L746">        setY(originalY);</span>
+<span class="fc" id="L747">        attacker.setX(attackerX);</span>
+<span class="fc" id="L748">        attacker.setY(attackerY);</span>
+
+<span class="fc" id="L750">        return capture;</span>
+    }
+
+    /**
+     * Returns all legal moves (moves that put king in danger)
+     * @return list of legal moves
+     */
+    public ArrayList&lt;int[]&gt; legalMoves() {
+        // legal moves do not protect their king
+<span class="fc" id="L759">        ArrayList&lt;int[]&gt; legalMoves = new ArrayList&lt;int[]&gt;();</span>
+<span class="pc bpc" id="L760" title="1 of 2 branches missed.">        if (getKing().isCheck()) {</span>
+<span class="fc bfc" id="L761" title="All 2 branches covered.">            for (int[] square: allMoves()) {</span>
+<span class="fc bfc" id="L762" title="All 2 branches covered.">                if (!Board.isInSquares(validMoves(), square)) {</span>
+<span class="fc" id="L763">                    legalMoves.add(square);</span>
+                }
+<span class="fc" id="L765">            }</span>
+        }
+
+<span class="fc" id="L768">        return legalMoves;</span>
+    }
+
+    /**
+     * Returns all valid moves (moves that don't put king in danger)
+     * @return list of valid moves
+     */
+    public ArrayList&lt;int[]&gt; validMoves() {
+<span class="fc" id="L776">        ArrayList&lt;int[]&gt; allMoves = allMoves();</span>
+<span class="fc" id="L777">        ArrayList&lt;int[]&gt; safeMoves = new ArrayList&lt;int[]&gt;();</span>
+<span class="fc" id="L778">        King king = getKing();</span>
+
+<span class="fc bfc" id="L780" title="All 2 branches covered.">        for (int[] square: allMoves) {</span>
+<span class="fc" id="L781">            int x = square[0];</span>
+<span class="fc" id="L782">            int y = square[1];</span>
+<span class="fc" id="L783">            Piece overlapP = Board.getPieceByLocation(x, y);</span>
+
+<span class="fc bfc" id="L785" title="All 6 branches covered.">            if (overlapP == null &amp;&amp; notPinned(x, y) || </span>
+<span class="fc bfc" id="L786" title="All 2 branches covered.">                overlapP != null &amp;&amp; captureAttacker(overlapP)) {</span>
+<span class="fc" id="L787">                safeMoves.add(square);</span>
+            }
+<span class="fc" id="L789">        }</span>
+
+<span class="fc bfc" id="L791" title="All 2 branches covered.">        if (this == king) {</span>
+<span class="fc" id="L792">            safeMoves.addAll(king.castlingMoves());</span>
+        }
+
+<span class="fc" id="L795">        return safeMoves;</span>
+    }
+
+    /**
+     * Returns possible capturing pieces
+     * @return a list of pieces that can be captured
+     */
+    public ArrayList&lt;Piece&gt; validCaptures() {
+<span class="fc" id="L803">        ArrayList&lt;Piece&gt; validCaptures = new ArrayList&lt;Piece&gt;();</span>
+
+<span class="fc bfc" id="L805" title="All 2 branches covered.">        for (int[] square: validMoves()) {</span>
+<span class="fc" id="L806">            Piece overlapP = Board.getPieceByLocation(square[0], square[1]);</span>
+<span class="fc bfc" id="L807" title="All 2 branches covered.">            if (overlapP != null) {</span>
+<span class="fc" id="L808">                validCaptures.add(overlapP);</span>
+            }
+<span class="fc" id="L810">        }</span>
+
+<span class="fc" id="L812">        return validCaptures;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

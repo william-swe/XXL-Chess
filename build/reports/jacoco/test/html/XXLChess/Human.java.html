@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Human.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">home</a> &gt; <a href="index.source.html" class="el_package">XXLChess</a> &gt; <span class="el_source">Human.java</span></div><h1>Human.java</h1><pre class="source lang-java linenums">package XXLChess;
+
+import processing.core.PApplet;
+
+import XXLChess.Pieces.Piece;
+import XXLChess.Pieces.King;
+
+public class Human extends Player {
+
+    /**
+     * Main player's selecting piece
+     */
+    private Piece selectedPiece;
+    /**
+     * Number of frames is used for king flashing animation
+     */
+    private int countFrames;
+    /**
+     * Marks if main player makes a legal move
+     */
+    private boolean makeLegalMove;
+
+    /**
+     * Human constructor, initializes name, colour, selecting piece, 
+     * frame count and legal move status
+     * @param name of the player
+     * @param player_colour, player's pieces colour
+     */
+    public Human(String name, String player_colour) {
+<span class="fc" id="L30">        super(name, player_colour);</span>
+<span class="fc" id="L31">        this.selectedPiece = null;</span>
+<span class="fc" id="L32">        this.countFrames = 0;</span>
+<span class="fc" id="L33">        this.makeLegalMove = false;</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * When main player starts turn:
+     * set turn status to true and reset last pieces status
+     */
+    @Override
+    public void startTurn() {
+<span class="fc" id="L42">        setTurn(true);</span>
+<span class="fc" id="L43">        resetLastPiece();</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * When main player ends turn:
+     * set turn status to false, set last piece to the selecting piece, then
+     * deselect piece
+     */
+    @Override
+    public void endTurn() {
+<span class="fc" id="L53">        setTurn(false);</span>
+<span class="fc" id="L54">        setLastPiece(this.selectedPiece);</span>
+<span class="fc" id="L55">        deSelectPiece();</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Returns selecting piece
+     * @return selecting piece
+     */
+    public Piece getSelectedPiece() {
+<span class="fc" id="L63">        return this.selectedPiece;</span>
+    }
+
+    /**
+     * Sets selecting piece
+     * @param p, selecting piece
+     */
+    public void setSelectedPiece(Piece p) {
+<span class="fc" id="L71">        deSelectPiece();</span>
+<span class="fc" id="L72">        this.selectedPiece = p;</span>
+<span class="fc" id="L73">        p.setSelected(true);</span>
+<span class="fc" id="L74">    }</span>
+
+    /**
+     * Deselects current selecting piece
+     */
+    public void deSelectPiece() {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (this.selectedPiece != null) {</span>
+<span class="fc" id="L81">            this.selectedPiece.setSelected(false);</span>
+<span class="fc" id="L82">            this.selectedPiece = null;</span>
+        }
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * Returns number of frames count
+     * @return frames count
+     */
+    public int getCountFrames() {
+<span class="fc" id="L91">        return this.countFrames;</span>
+    }
+
+    /**
+     * Sets frame count to zero
+     */
+    public void resetCountFrames() {
+<span class="fc" id="L98">        this.countFrames = 0;</span>
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * Returns true if main player makes a legal move
+     * otherwise, false
+     * @return true or false
+     */
+    public boolean makeLegalMove() {
+<span class="fc" id="L107">        return this.makeLegalMove;</span>
+    }
+
+    /**
+     * Sets legal move status
+     * @param status, legal move status
+     */
+    public void setLegalMove(boolean status) {
+<span class="fc" id="L115">        this.makeLegalMove = status;</span>
+<span class="fc" id="L116">    }</span>
+
+    /**
+     * Perform logics per frame
+     * Draws flashing king when the player makes a legal move
+     */
+    @Override
+    public void draw(PApplet app) {
+<span class="fc" id="L124">        tick();</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">        if (makeLegalMove()) {</span>
+<span class="fc" id="L126">            King king = getKing();</span>
+<span class="fc" id="L127">            this.countFrames++;</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">            if (this.countFrames &gt; 150) {</span>
+<span class="nc" id="L129">                setLegalMove(false);</span>
+<span class="nc" id="L130">                resetCountFrames();</span>
+<span class="nc" id="L131">                king.setFlashing(false);</span>
+<span class="pc bpc" id="L132" title="9 of 10 branches missed.">            } else if </span>
+                    (this.countFrames &lt; 30 || 
+                    (this.countFrames &gt;= 60 &amp;&amp; this.countFrames &lt; 90) || 
+                    (this.countFrames &gt;= 120 &amp;&amp; this.countFrames &lt; 150)) {
+<span class="fc" id="L136">                king.flash(app);</span>
+            }
+        }
+<span class="fc" id="L139">    }</span>
+
+    /**
+     * Given coordinates, return true if player can make a move
+     * otherwise, false
+     * @param x, x mouse pressed coordinate
+     * @param y, y mouse pressed coordinate
+     * @return true or false
+     */
+    public boolean makeMove(int x, int y) {
+<span class="fc" id="L149">        Piece piece = Board.getPieceByLocation(x, y);</span>
+
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (getPieces().contains(piece)) {</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">            if (piece != getSelectedPiece()) {</span>
+                // select a new piece
+<span class="fc" id="L154">                setSelectedPiece(piece);</span>
+            } else {
+                // select the same piece
+<span class="fc" id="L157">                deSelectPiece();</span>
+            }
+<span class="fc" id="L159">            return false;</span>
+        }
+
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (getSelectedPiece() != null) {</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">            if (getSelectedPiece().move(x, y)) {</span>
+                // move a piece
+<span class="fc" id="L165">                return true;</span>
+            } else {
+<span class="fc bfc" id="L167" title="All 2 branches covered.">                for (int[] move: getSelectedPiece().legalMoves()) {</span>
+                    // make a legal move
+<span class="fc bfc" id="L169" title="All 4 branches covered.">                    if (move[0] == x &amp;&amp; move[1] == y) {</span>
+<span class="fc" id="L170">                        setLegalMove(true);</span>
+<span class="fc" id="L171">                        getKing().setFlashing(true);</span>
+                    }
+<span class="fc" id="L173">                }</span>
+            }
+<span class="fc" id="L175">            deSelectPiece();</span>
+        }
+
+<span class="fc" id="L178">        return false;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

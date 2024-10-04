@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">home</a> &gt; <a href="index.source.html" class="el_package">XXLChess</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">package XXLChess;
+
+//import org.reflections.Reflections;
+//import org.reflections.scanners.Scanners;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.data.JSONObject;
+// import processing.data.JSONArray;
+// import processing.core.PFont;
+import processing.event.MouseEvent;
+
+// import java.util.concurrent.ConcurrentHashMap;
+// import java.util.concurrent.TimeUnit;
+
+// import com.jogamp.newt.event.KeyEvent;
+
+import XXLChess.Pieces.Piece;
+import XXLChess.Pieces.Amazon;
+import XXLChess.Pieces.Archbishop;
+import XXLChess.Pieces.Bishop;
+import XXLChess.Pieces.Camel;
+import XXLChess.Pieces.Chancellor;
+import XXLChess.Pieces.Guard;
+import XXLChess.Pieces.King;
+import XXLChess.Pieces.Knight;
+import XXLChess.Pieces.Pawn;
+import XXLChess.Pieces.Queen;
+import XXLChess.Pieces.Rook;
+
+// import java.awt.Font;
+import java.io.*;
+import java.util.*;
+
+public class App extends PApplet {
+
+    /**
+     * Sprite size
+     */
+    public static final int SPRITESIZE = 480;
+    /**
+     * Cell size
+     */
+    public static final int CELLSIZE = 48;
+    /**
+     * Side bar size
+     */
+    public static final int SIDEBAR = 120;
+    /**
+     * Board width (number of squares)
+     */
+    public static final int BOARD_WIDTH = 14;
+
+    /**
+     * Black colour rgb
+     */
+<span class="fc" id="L56">    public static final int[] BLACKRGB = {162, 124, 81};</span>
+    /**
+     * White colour rgb
+     */
+<span class="fc" id="L60">    public static final int[] WHITERGB = {248, 231, 187};</span>
+    /**
+     * Orange colour rgb
+     */
+<span class="fc" id="L64">    public static final int[] ORANGERGB = {230, 115, 0};</span>
+    /**
+     * Red colour rgb
+     */
+<span class="fc" id="L68">    public static final int[] REDRGB = {204, 0, 0};</span>
+    /**
+     * Green colour rgb
+     */
+<span class="fc" id="L72">    public static final int[] GREENRGB = {0, 153, 51};</span>
+    /**
+     * Blue colour rgb
+     */
+<span class="fc" id="L76">    public static final int[] BLUERGB = {126, 224, 249};</span>
+    /**
+     * Yellow colour rgb
+     */
+<span class="fc" id="L80">    public static final int[] YELLOWRGB = {153, 153, 0};</span>
+
+    /**
+     * Width of game screen
+     */
+<span class="fc" id="L85">    public static int WIDTH = CELLSIZE*BOARD_WIDTH+SIDEBAR;</span>
+    /**
+     * Height of game screen
+     */
+<span class="fc" id="L89">    public static int HEIGHT = BOARD_WIDTH*CELLSIZE;</span>
+
+    /**
+     * Number of frames
+     */
+    public static final int FPS = 60;
+
+    /**
+     * Piece movement speed
+     */
+    public static double PIECE_MOVEMENT_SPEED;
+    /**
+     * Max movement time of a piece
+     */
+    public static double MAX_MOVEMENT_TIME;
+    /**
+     * A map contains names of pieces as keys and their images as values
+     */
+    public static Map&lt;String, PImage&gt; IMAGES;
+	
+    /**
+     * Configuration filename
+     */
+    public String configPath;
+    /**
+     * The game board
+     */
+<span class="fc" id="L116">    public Board board = new Board();</span>
+    /**
+     * The main player
+     */
+    public Human p1;
+    /**
+     * Computer player
+     */
+    public CPU p2;
+    /**
+     * Second player
+     */
+    public Human p3;
+    /**
+     * Marks player vs player mode
+     */
+<span class="fc" id="L132">    public boolean isPvP = false;</span>
+    /**
+     * A list contains two players
+     */
+<span class="fc" id="L136">    public ArrayList&lt;Player&gt; players = new ArrayList&lt;Player&gt;();</span>
+    /**
+     * Main player timer
+     */
+    public Timer p1Timer;
+    /**
+     * Cpu/ second player timer
+     */
+    public Timer p2Timer;
+    /**
+     * A list contains two timers
+     */
+<span class="fc" id="L148">    public ArrayList&lt;Timer&gt; timers = new ArrayList&lt;Timer&gt;();</span>
+    /**
+     * Marks game status, true if game has ended, otherwise, false
+     */
+<span class="fc" id="L152">    public boolean gameEnd = false;</span>
+    /**
+     * Marks player status, true if player resigns, otherwise, false
+     */
+<span class="fc" id="L156">    public boolean isResign = false;</span>
+
+    /**
+     * App constructor, initializes configuration file name
+     */
+<span class="fc" id="L161">    public App() {</span>
+<span class="fc" id="L162">        this.configPath = &quot;config.json&quot;;</span>
+<span class="fc" id="L163">    }</span>
+
+    /**
+     * Initialise the setting of the window size.
+    */
+    public void settings() {
+<span class="fc" id="L169">        size(WIDTH, HEIGHT);</span>
+<span class="fc" id="L170">    }</span>
+
+    /**
+     * Load all resources such as images. Initialise the elements such as the player, enemies and map elements.
+    */
+    public void setup() {
+<span class="fc" id="L176">        frameRate(FPS);</span>
+<span class="fc" id="L177">        textFont(createFont(&quot;Times&quot;, 16));</span>
+
+        // Load and resize images
+<span class="fc" id="L180">        loadImages();</span>
+<span class="fc" id="L181">        resizeImages();</span>
+
+		// load config
+<span class="fc" id="L184">        loadPieceMovementTime();</span>
+
+        //load layout
+<span class="fc" id="L187">        loadPieces();</span>
+
+        // initialize timers
+<span class="fc" id="L190">        initializeTimers();</span>
+
+        // initialize players
+<span class="fc" id="L193">        initializePlayers();</span>
+        
+<span class="fc" id="L195">    }</span>
+
+    /**
+     * Receive key pressed signal from the keyboard.
+    */
+    public void keyPressed(){
+<span class="pc bpc" id="L201" title="1 of 4 branches missed.">        if (gameEnd &amp;&amp; keyCode == 82) {</span>
+<span class="nc" id="L202">            Board.allPieces = new ArrayList&lt;Piece&gt;();</span>
+<span class="nc" id="L203">            setup();</span>
+<span class="nc" id="L204">            gameEnd = false;</span>
+<span class="nc" id="L205">            isResign = false;</span>
+<span class="fc bfc" id="L206" title="All 4 branches covered.">        } else if (!gameEnd &amp;&amp; keyCode == 69) {</span>
+<span class="fc" id="L207">            gameEnd = true;</span>
+<span class="fc" id="L208">            isResign = true;</span>
+        }
+<span class="fc" id="L210">    }</span>
+    
+    /**
+     * Receive key released signal from the keyboard.
+    */
+    public void keyReleased(){
+
+<span class="fc" id="L217">    }</span>
+
+    /**
+     * Mouse click event
+     * @param e, mouse event
+     */
+    @Override
+    public void mousePressed(MouseEvent e) {
+<span class="nc" id="L225">        int x = Math.floorDiv(e.getX(), CELLSIZE);</span>
+<span class="nc" id="L226">        int y = Math.floorDiv(e.getY(), CELLSIZE);</span>
+
+<span class="nc bnc" id="L228" title="All 2 branches missed.">        if (!gameEnd) {</span>
+            // main player makes a move
+<span class="nc bnc" id="L230" title="All 4 branches missed.">            if (p1.isTurn() &amp;&amp; p1.makeMove(x, y)) {</span>
+<span class="nc" id="L231">                p1.endTurn();</span>
+<span class="nc" id="L232">                p1Timer.increment();</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">                if (isPvP) {</span>
+<span class="nc" id="L234">                    p3.startTurn();</span>
+                } else {
+<span class="nc" id="L236">                    p2.startTurn();</span>
+                }
+            }
+            // second player makes a move
+<span class="nc bnc" id="L240" title="All 6 branches missed.">            if (isPvP &amp;&amp; p3.isTurn() &amp;&amp; p3.makeMove(x, y)) {</span>
+<span class="nc" id="L241">                p3.endTurn();</span>
+<span class="nc" id="L242">                p2Timer.increment();</span>
+<span class="nc" id="L243">                p1.startTurn();</span>
+            }
+        }
+
+<span class="nc" id="L247">    }</span>
+
+    /**
+     * Mouse dragged event
+     * @param e, mouse event
+     */
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        
+<span class="nc" id="L256">    }</span>
+
+    /**
+     * Draw all elements in the game by current frame. 
+    */
+    public void draw() {
+<span class="fc" id="L262">        background(196);</span>
+<span class="fc" id="L263">        board.draw(this);</span>
+
+<span class="fc bfc" id="L265" title="All 2 branches covered.">        for (Player player: players) {</span>
+<span class="fc" id="L266">            player.draw(this);</span>
+            // player's king is checked
+<span class="fc bfc" id="L268" title="All 2 branches covered.">            if (player.getKing().isCheck()) {</span>
+<span class="fc" id="L269">                displayText(&quot;Check!&quot;, </span>
+                BOARD_WIDTH * CELLSIZE + 5, (BOARD_WIDTH / 2) * CELLSIZE - 80);
+            }
+            // stalemate
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">            if (player.isStalemate()) {</span>
+<span class="nc" id="L274">                displayText(&quot;Stalemate - draw\n\nPress 'r' to restart\nthe game&quot;, </span>
+                BOARD_WIDTH * CELLSIZE + 5, (BOARD_WIDTH / 2) * CELLSIZE - 80);
+<span class="nc" id="L276">                gameEnd = true;</span>
+            }
+<span class="fc" id="L278">        }</span>
+
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">        if (p1.isTurn()) {</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">            if (p1.isCheckMated()) {</span>
+                // main player is checkmated
+<span class="nc" id="L283">                displayText(&quot;You lost by \ncheckmate\n\nPress 'r' to restart\nthe game&quot;, </span>
+                BOARD_WIDTH * CELLSIZE + 5, (BOARD_WIDTH / 2) * CELLSIZE - 80);
+<span class="nc" id="L285">                gameEnd = true;</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">            } else if (p1.makeLegalMove()) {</span>
+                // main player makes a legal move
+<span class="nc" id="L288">                displayText(&quot;You must defend \nyour king!&quot;, </span>
+                BOARD_WIDTH * CELLSIZE + 5, (BOARD_WIDTH / 2) * CELLSIZE - 80);
+            }
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">            if (!gameEnd) {</span>
+<span class="fc" id="L292">                p1Timer.tick();</span>
+            }
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">            if (p1Timer.reachZero()) {</span>
+                // main player losts on time
+<span class="nc" id="L296">                displayText(&quot;You lost on time\n\nPress 'r' to restart\nthe game&quot;, </span>
+                BOARD_WIDTH * CELLSIZE + 5, (BOARD_WIDTH / 2) * CELLSIZE - 80);
+<span class="nc" id="L298">                gameEnd = true;</span>
+            }
+        } else {
+<span class="nc bnc" id="L301" title="All 8 branches missed.">            if (!isPvP &amp;&amp; p2.isCheckMated() || isPvP &amp;&amp; p3.isCheckMated()) {</span>
+                // other player is checkmated
+<span class="nc" id="L303">                displayText(&quot;You won by \ncheckmate\n\nPress 'r' to restart\nthe game&quot;, </span>
+                BOARD_WIDTH * CELLSIZE + 5, (BOARD_WIDTH / 2) * CELLSIZE - 80);
+<span class="nc" id="L305">                gameEnd = true;</span>
+<span class="nc bnc" id="L306" title="All 4 branches missed.">            } else if (isPvP &amp;&amp; p3.makeLegalMove()) {</span>
+                // other player makes a legal move
+<span class="nc" id="L308">                displayText(&quot;You must defend \nyour king!&quot;, </span>
+                BOARD_WIDTH * CELLSIZE + 5, (BOARD_WIDTH / 2) * CELLSIZE - 80);
+            }
+<span class="nc bnc" id="L311" title="All 2 branches missed.">            if (p2Timer.reachZero()) {</span>
+                // other player losts on time
+<span class="nc" id="L313">                displayText(&quot;You won on time\n\nPress 'r' to restart\nthe game&quot;, </span>
+                BOARD_WIDTH * CELLSIZE + 5, (BOARD_WIDTH / 2) * CELLSIZE - 80);
+<span class="nc" id="L315">                gameEnd = true;</span>
+            }
+<span class="nc bnc" id="L317" title="All 2 branches missed.">            if (!gameEnd) {</span>
+<span class="nc" id="L318">                p2Timer.tick();</span>
+            }
+<span class="nc bnc" id="L320" title="All 6 branches missed.">            if (!gameEnd &amp;&amp; !isPvP &amp;&amp; p2.makeMove()) {</span>
+                // cpu makes a move
+<span class="nc" id="L322">                p2.endTurn();</span>
+<span class="nc" id="L323">                p2Timer.increment();</span>
+<span class="nc" id="L324">                p1.startTurn();</span>
+            }
+        }
+        // draws timers
+<span class="fc" id="L328">        p1Timer.draw(this);</span>
+<span class="fc" id="L329">        p2Timer.draw(this);</span>
+
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">        if (isResign) {</span>
+<span class="nc" id="L332">            displayText(&quot;You resigned\n\nPress 'r' to restart\nthe game&quot;, </span>
+                    BOARD_WIDTH * CELLSIZE + 5, (BOARD_WIDTH / 2) * CELLSIZE - 80);
+        }
+
+<span class="fc" id="L336">    }</span>
+	
+	// Add any additional methods or attributes you want. Please put classes in different files.
+
+    /**
+     * Load images for the game
+     */
+    public void loadImages() {
+        // Load images during setup
+<span class="fc" id="L345">        IMAGES = new HashMap&lt;String, PImage&gt;();</span>
+
+        // PImage spr = loadImage(&quot;src/main/resources/XXLChess/&quot;+...);
+<span class="fc" id="L348">        String iPath = &quot;src/main/resources/XXLChess/&quot;;</span>
+<span class="fc" id="L349">        IMAGES.put(&quot;P&quot;, loadImage(iPath + &quot;b-pawn.png&quot;));</span>
+<span class="fc" id="L350">        IMAGES.put(&quot;p&quot;, loadImage(iPath + &quot;w-pawn.png&quot;));</span>
+<span class="fc" id="L351">        IMAGES.put(&quot;R&quot;, loadImage(iPath + &quot;b-rook.png&quot;));</span>
+<span class="fc" id="L352">        IMAGES.put(&quot;r&quot;, loadImage(iPath + &quot;w-rook.png&quot;));</span>
+<span class="fc" id="L353">        IMAGES.put(&quot;N&quot;, loadImage(iPath + &quot;b-knight.png&quot;));</span>
+<span class="fc" id="L354">        IMAGES.put(&quot;n&quot;, loadImage(iPath + &quot;w-knight.png&quot;));</span>
+<span class="fc" id="L355">        IMAGES.put(&quot;B&quot;, loadImage(iPath + &quot;b-bishop.png&quot;));</span>
+<span class="fc" id="L356">        IMAGES.put(&quot;b&quot;, loadImage(iPath + &quot;w-bishop.png&quot;));</span>
+<span class="fc" id="L357">        IMAGES.put(&quot;H&quot;, loadImage(iPath + &quot;b-archbishop.png&quot;));</span>
+<span class="fc" id="L358">        IMAGES.put(&quot;h&quot;, loadImage(iPath + &quot;w-archbishop.png&quot;));</span>
+<span class="fc" id="L359">        IMAGES.put(&quot;C&quot;, loadImage(iPath + &quot;b-camel.png&quot;));</span>
+<span class="fc" id="L360">        IMAGES.put(&quot;c&quot;, loadImage(iPath + &quot;w-camel.png&quot;));</span>
+<span class="fc" id="L361">        IMAGES.put(&quot;G&quot;, loadImage(iPath + &quot;b-knight-king.png&quot;));</span>
+<span class="fc" id="L362">        IMAGES.put(&quot;g&quot;, loadImage(iPath + &quot;w-knight-king.png&quot;));</span>
+<span class="fc" id="L363">        IMAGES.put(&quot;A&quot;, loadImage(iPath + &quot;b-amazon.png&quot;));</span>
+<span class="fc" id="L364">        IMAGES.put(&quot;a&quot;, loadImage(iPath + &quot;w-amazon.png&quot;));</span>
+<span class="fc" id="L365">        IMAGES.put(&quot;K&quot;, loadImage(iPath + &quot;b-king.png&quot;));</span>
+<span class="fc" id="L366">        IMAGES.put(&quot;k&quot;, loadImage(iPath + &quot;w-king.png&quot;));</span>
+<span class="fc" id="L367">        IMAGES.put(&quot;E&quot;, loadImage(iPath + &quot;b-chancellor.png&quot;));</span>
+<span class="fc" id="L368">        IMAGES.put(&quot;e&quot;, loadImage(iPath + &quot;w-chancellor.png&quot;));</span>
+<span class="fc" id="L369">        IMAGES.put(&quot;Q&quot;, loadImage(iPath + &quot;b-queen.png&quot;));</span>
+<span class="fc" id="L370">        IMAGES.put(&quot;q&quot;, loadImage(iPath + &quot;w-queen.png&quot;));</span>
+<span class="fc" id="L371">    }</span>
+
+    /**
+     * Resize pieces images
+     */
+    public void resizeImages() {
+<span class="fc bfc" id="L377" title="All 2 branches covered.">        for (PImage image: IMAGES.values()) {</span>
+<span class="fc" id="L378">            image.resize(CELLSIZE, CELLSIZE);</span>
+<span class="fc" id="L379">        }</span>
+<span class="fc" id="L380">    }</span>
+
+    /**
+     * Returns layout filename from configuration file
+     * @return layout filename
+     */
+    public String loadLayoutName() {
+<span class="fc" id="L387">        JSONObject conf = loadJSONObject(new File(this.configPath));</span>
+<span class="fc" id="L388">        String layoutFile = (String) conf.get(&quot;layout&quot;);</span>
+
+<span class="fc" id="L390">        return layoutFile;</span>
+    }
+
+    /**
+     * Loads piece movement speed and max movement time from configuration file
+     */
+    public void loadPieceMovementTime() {
+<span class="fc" id="L397">        JSONObject conf = loadJSONObject(new File(this.configPath));</span>
+<span class="fc" id="L398">        PIECE_MOVEMENT_SPEED = (double) conf.get(&quot;piece_movement_speed&quot;);</span>
+<span class="fc" id="L399">        MAX_MOVEMENT_TIME = (double) conf.get(&quot;max_movement_time&quot;);</span>
+<span class="fc" id="L400">    }</span>
+
+    /**
+     * Load main player's piece colour from configuration file
+     * @return player's piece colour
+     */
+    public String loadPlayerColour() {
+<span class="fc" id="L407">        JSONObject conf = loadJSONObject(new File(this.configPath));</span>
+<span class="fc" id="L408">        String player_colour = (String) conf.get(&quot;player_colour&quot;);</span>
+
+<span class="fc" id="L410">        return player_colour;</span>
+    }
+
+    /**
+     * Loads two players seconds and increments from configuration file
+     * @return an array contains two players seconds and increments
+     */
+    public int[] loadPlayersTime() {
+<span class="fc" id="L418">        JSONObject conf = loadJSONObject(new File(this.configPath));</span>
+<span class="fc" id="L419">        JSONObject jsonTime = conf.getJSONObject(&quot;time_controls&quot;);</span>
+<span class="fc" id="L420">        int playerSeconds = 0;</span>
+<span class="fc" id="L421">        int playerIncrement = 0;</span>
+<span class="fc" id="L422">        int cpuSeconds = 0;</span>
+<span class="fc" id="L423">        int cpuIncrement = 0;</span>
+<span class="fc bfc" id="L424" title="All 2 branches covered.">        for (Object key: jsonTime.keys()) {</span>
+<span class="fc" id="L425">            String k = (String) key;</span>
+<span class="fc bfc" id="L426" title="All 2 branches covered.">            if (k.equals(&quot;player&quot;)) {</span>
+<span class="fc" id="L427">                JSONObject jsonPlayer = jsonTime.getJSONObject(&quot;player&quot;);</span>
+<span class="fc" id="L428">                playerSeconds = (int) jsonPlayer.get(&quot;seconds&quot;);</span>
+<span class="fc" id="L429">                playerIncrement = (int) jsonPlayer.get(&quot;increment&quot;);</span>
+<span class="pc bpc" id="L430" title="1 of 2 branches missed.">            } else if (k.equals(&quot;player1&quot;)) {</span>
+<span class="nc" id="L431">                JSONObject jsonPlayer = jsonTime.getJSONObject(&quot;player1&quot;);</span>
+<span class="nc" id="L432">                playerSeconds = (int) jsonPlayer.get(&quot;seconds&quot;);</span>
+<span class="nc" id="L433">                playerIncrement = (int) jsonPlayer.get(&quot;increment&quot;);</span>
+<span class="pc bpc" id="L434" title="1 of 2 branches missed.">            } else if (k.equals(&quot;player2&quot;)) {</span>
+                // two players mode
+<span class="nc" id="L436">                isPvP = true;</span>
+<span class="nc" id="L437">                JSONObject jsonPlayer = jsonTime.getJSONObject(&quot;player2&quot;);</span>
+<span class="nc" id="L438">                cpuSeconds = (int) jsonPlayer.get(&quot;seconds&quot;);</span>
+<span class="nc" id="L439">                cpuIncrement = (int) jsonPlayer.get(&quot;increment&quot;);</span>
+<span class="pc bpc" id="L440" title="1 of 2 branches missed.">            } else if (k.equals(&quot;cpu&quot;)) {</span>
+<span class="fc" id="L441">                JSONObject jsonPlayer = jsonTime.getJSONObject(&quot;cpu&quot;);</span>
+<span class="fc" id="L442">                cpuSeconds = (int) jsonPlayer.get(&quot;seconds&quot;);</span>
+<span class="fc" id="L443">                cpuIncrement = (int) jsonPlayer.get(&quot;increment&quot;);</span>
+            }
+<span class="fc" id="L445">        }</span>
+
+<span class="fc" id="L447">        int[] data = new int[] {playerSeconds, playerIncrement, cpuSeconds, cpuIncrement};</span>
+
+<span class="fc" id="L449">        return data;</span>
+    }
+
+    /**
+     * Intializes player's timers
+     */
+    public void initializeTimers() {
+<span class="fc" id="L456">        int[] data = loadPlayersTime();</span>
+<span class="fc" id="L457">        p1Timer = new Timer(data[0], data[1], true);</span>
+<span class="fc" id="L458">        p2Timer = new Timer(data[2], data[3], false);</span>
+<span class="fc" id="L459">        timers.add(p1Timer);</span>
+<span class="fc" id="L460">        timers.add(p2Timer);</span>
+<span class="fc" id="L461">    }</span>
+
+    /**
+     * Initializes two players
+     */
+    public void initializePlayers() {
+<span class="fc" id="L467">        String player_colour = loadPlayerColour();</span>
+<span class="pc bpc" id="L468" title="1 of 2 branches missed.">        if (player_colour.equals(&quot;white&quot;)) {</span>
+<span class="fc" id="L469">            p1 = new Human(&quot;player1&quot;, &quot;white&quot;);</span>
+<span class="pc bpc" id="L470" title="1 of 2 branches missed.">            if (isPvP) {</span>
+<span class="nc" id="L471">                p3 = new Human(&quot;player3&quot;, &quot;black&quot;);</span>
+            } else {
+<span class="fc" id="L473">                p2 = new CPU(&quot;ai&quot;, &quot;black&quot;);</span>
+            }
+        } else {
+<span class="nc" id="L476">            p1 = new Human(&quot;player1&quot;, &quot;black&quot;);</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">            if (isPvP) {</span>
+<span class="nc" id="L478">                p3 = new Human(&quot;player3&quot;, &quot;white&quot;);</span>
+            } else {
+<span class="nc" id="L480">                p2 = new CPU(&quot;ai&quot;, &quot;white&quot;);</span>
+            }
+        }
+<span class="fc" id="L483">        players.add(p1);</span>
+<span class="pc bpc" id="L484" title="1 of 2 branches missed.">        if (isPvP) {</span>
+<span class="nc" id="L485">            players.add(p3);</span>
+        } else {
+<span class="fc" id="L487">            players.add(p2);</span>
+        }
+<span class="fc" id="L489">    }</span>
+
+    /**
+     * Initializes pieces for the game from layout file
+     */
+    public void loadPieces() {
+<span class="fc" id="L495">        String layoutFile = loadLayoutName();</span>
+<span class="fc" id="L496">        String player_colour = loadPlayerColour();</span>
+
+        try {
+<span class="fc" id="L499">            Scanner scanner = new Scanner(new File(layoutFile));</span>
+<span class="fc" id="L500">            ArrayList&lt;String&gt; layout = new ArrayList&lt;String&gt;();</span>
+
+            // read file line by line
+<span class="fc bfc" id="L503" title="All 2 branches covered.">            while (scanner.hasNextLine()) {</span>
+<span class="fc" id="L504">                layout.add(scanner.nextLine());</span>
+            }
+
+<span class="fc bfc" id="L507" title="All 2 branches covered.">            for (int i=0; i&lt;layout.size(); i++) {</span>
+<span class="fc" id="L508">                String line = layout.get(i);</span>
+<span class="fc bfc" id="L509" title="All 2 branches covered.">                if (!line.isEmpty()) {</span>
+<span class="fc bfc" id="L510" title="All 2 branches covered.">                    for (int j=0; j&lt;line.length(); j++) {</span>
+<span class="fc" id="L511">                        String name = String.valueOf(line.charAt(j));</span>
+
+<span class="fc bfc" id="L513" title="All 2 branches covered.">                        if (IMAGES.containsKey(name)) {</span>
+<span class="fc bfc" id="L514" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;p&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L516" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+                                    // check player colour
+                                    boolean isHumanSide;
+<span class="pc bpc" id="L519" title="1 of 2 branches missed.">                                    if (player_colour.equals(&quot;black&quot;)) isHumanSide = true; else isHumanSide = false;</span>
+<span class="fc" id="L520">                                    Board.allPieces.add(new Pawn(isHumanSide, &quot;P&quot;, 1.0, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+<span class="fc" id="L521">                                } else {</span>
+                                    // check player colour
+                                    boolean isHumanSide;
+<span class="pc bpc" id="L524" title="1 of 2 branches missed.">                                    if (player_colour.equals(&quot;white&quot;)) isHumanSide = true; else isHumanSide = false;</span>
+<span class="fc" id="L525">                                    Board.allPieces.add(new Pawn(isHumanSide, &quot;p&quot;, 1.0, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L528" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;r&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L530" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L531">                                    Board.allPieces.add(new Rook(&quot;R&quot;, 5.25, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L533">                                    Board.allPieces.add(new Rook(&quot;r&quot;, 5.25, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L536" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;n&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L538" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L539">                                    Board.allPieces.add(new Knight(&quot;N&quot;, 2, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L541">                                    Board.allPieces.add(new Knight(&quot;n&quot;, 2, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L544" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;b&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L546" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L547">                                    Board.allPieces.add(new Bishop(&quot;B&quot;, 3.625, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L549">                                    Board.allPieces.add(new Bishop(&quot;b&quot;, 3.625, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L552" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;h&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L554" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L555">                                    Board.allPieces.add(new Archbishop(&quot;H&quot;, 7.5, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L557">                                    Board.allPieces.add(new Archbishop(&quot;h&quot;, 7.5, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L560" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;c&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L562" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L563">                                    Board.allPieces.add(new Camel(&quot;C&quot;, 2, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L565">                                    Board.allPieces.add(new Camel(&quot;c&quot;, 2, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L568" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;g&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L570" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L571">                                    Board.allPieces.add(new Guard(&quot;G&quot;, 5, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L573">                                    Board.allPieces.add(new Guard(&quot;g&quot;, 5, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L576" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;a&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L578" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L579">                                    Board.allPieces.add(new Amazon(&quot;A&quot;, 12, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L581">                                    Board.allPieces.add(new Amazon(&quot;a&quot;, 12, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L584" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;k&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L586" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L587">                                    Board.allPieces.add(new King(&quot;K&quot;, Double.POSITIVE_INFINITY, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L589">                                    Board.allPieces.add(new King(&quot;k&quot;, Double.POSITIVE_INFINITY, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L592" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;e&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L594" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L595">                                    Board.allPieces.add(new Chancellor(&quot;E&quot;, 8.5, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L597">                                    Board.allPieces.add(new Chancellor(&quot;e&quot;, 8.5, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+<span class="fc bfc" id="L600" title="All 2 branches covered.">                            if (name.toLowerCase().equals(&quot;q&quot;)) {</span>
+                                // black colour
+<span class="fc bfc" id="L602" title="All 2 branches covered.">                                if (!name.toLowerCase().equals(name)) {</span>
+<span class="fc" id="L603">                                    Board.allPieces.add(new Queen(&quot;Q&quot;, 9.5, &quot;black&quot;, j, i, IMAGES.get(name)));</span>
+                                } else {
+<span class="fc" id="L605">                                    Board.allPieces.add(new Queen(&quot;q&quot;, 9.5, &quot;white&quot;, j, i, IMAGES.get(name)));</span>
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+<span class="nc" id="L613">        } catch (FileNotFoundException e) {</span>
+            // can't load file
+<span class="nc" id="L615">            System.out.println(&quot;File not found!&quot;);</span>
+<span class="nc" id="L616">            return;</span>
+<span class="fc" id="L617">        }</span>
+
+<span class="fc" id="L619">    }</span>
+
+    /**
+     * Displays text on game screen, given message and text coordinates
+     * @param msg, message
+     * @param x, x coordinate
+     * @param y, y coordinate
+     */
+    public void displayText(String msg, int x, int y) {
+<span class="fc" id="L628">        fill(196);</span>
+<span class="fc" id="L629">        rect(BOARD_WIDTH * CELLSIZE + 5, CELLSIZE, 110, 555);</span>
+        
+<span class="fc" id="L631">        fill(255);</span>
+<span class="fc" id="L632">        textSize(14);</span>
+<span class="fc" id="L633">        text(msg, x, y);</span>
+<span class="fc" id="L634">    }</span>
+
+    public static void main(String[] args) {
+<span class="fc" id="L637">        PApplet.main(&quot;XXLChess.App&quot;);</span>
+<span class="fc" id="L638">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

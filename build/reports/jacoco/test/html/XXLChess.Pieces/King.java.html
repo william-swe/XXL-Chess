@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>King.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">home</a> &gt; <a href="index.source.html" class="el_package">XXLChess.Pieces</a> &gt; <span class="el_source">King.java</span></div><h1>King.java</h1><pre class="source lang-java linenums">package XXLChess.Pieces;
+
+import processing.core.PApplet;
+import processing.core.PImage;
+import java.util.*;
+import XXLChess.App;
+import XXLChess.Board;
+
+public class King extends Piece {
+
+    /**
+     * Marks flashing status
+     */
+    private boolean flashing;
+
+    /**
+     * King constructor, initializes name, value, colour, coordinates, image and flashing status
+     * @param name, name of the piece
+     * @param value, value of the piece
+     * @param colour, colour of the piece
+     * @param x, x coordinate
+     * @param y, y coordinate
+     * @param image, image
+     */
+    public King(String name, double value, String colour, int x, int y, PImage image) {
+<span class="fc" id="L26">        super(name, value, colour, x, y, image);</span>
+<span class="fc" id="L27">        this.flashing = false;</span>
+<span class="fc" id="L28">    }</span>
+
+    /**
+     * Returns true if king is falshing due to legal move, otherwise, false
+     * @return true or false
+     */
+    public boolean flashing() {
+<span class="fc" id="L35">        return this.flashing;</span>
+    }
+
+    /**
+     * Sets flashing status of king
+     * @param status, flashing status
+     */
+    public void setFlashing(boolean status) {
+<span class="fc" id="L43">        this.flashing = status;</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Returns true if king is checked, otherwise, false
+     * @return true or false
+     */
+    public boolean isCheck() {
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (!piece.getColour().equals(getColour())) {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">                if (piece.allCaptures().contains(this)) {</span>
+<span class="fc" id="L54">                    return true;</span>
+                }
+            }
+<span class="fc" id="L57">        }</span>
+
+<span class="fc" id="L59">        return false;</span>
+    }
+
+    /**
+     * Highlights king when king is checked
+     * @param app, application
+     */
+    public void highLightCheck(PApplet app) {
+<span class="fc" id="L67">        app.fill(App.REDRGB[0], App.REDRGB[1], App.REDRGB[2]);</span>
+<span class="fc" id="L68">        app.rect(getX()*App.CELLSIZE, getY()*App.CELLSIZE, App.CELLSIZE, App.CELLSIZE);</span>
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * Returns true if king is checkmated, otherwise, false
+     * @return true or false
+     */
+    public boolean isCheckMated() {
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (!isCheck()) {</span>
+<span class="fc" id="L77">            return false;</span>
+        }
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L81" title="All 4 branches covered.">            if (piece.hasSameColour(this) &amp;&amp; !piece.validMoves().isEmpty()) {</span>
+<span class="fc" id="L82">                return false;</span>
+            }
+<span class="fc" id="L84">        }</span>
+
+<span class="fc" id="L86">        return true;</span>
+    }
+
+    /**
+     * Highlighs flashing king when a player makes a legal move
+     * @param app, application
+     */
+    public void flash (PApplet app) {
+<span class="fc" id="L94">        int x = getX();</span>
+<span class="fc" id="L95">        int y = getY();</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if ((x + y) % 2 == 0) {</span>
+<span class="fc" id="L97">            app.fill(App.WHITERGB[0], App.WHITERGB[1], App.WHITERGB[2]);</span>
+        } else {
+<span class="nc" id="L99">            app.fill(App.BLACKRGB[0], App.BLACKRGB[1], App.BLACKRGB[2]);</span>
+        }
+<span class="fc" id="L101">        app.rect(x*App.CELLSIZE, y*App.CELLSIZE, App.CELLSIZE, App.CELLSIZE);</span>
+<span class="fc" id="L102">        app.image(getImage(), x*App.CELLSIZE, y*App.CELLSIZE);</span>
+<span class="fc" id="L103">    }</span>
+
+    /**
+     * Returns true if the given coordinates matches one of king's castling moves, otherwise, returns false
+     * @param x, x coordinate
+     * @param y, y coordinate
+     * @return true or false
+     */
+    public boolean isCastlingMove(int x, int y) {
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        for (int[] square: castlingMoves()) {</span>
+<span class="fc bfc" id="L113" title="All 4 branches covered.">            if (square[0] == x &amp;&amp; square[1] == y) {</span>
+<span class="fc" id="L114">                return true;</span>
+            }
+<span class="fc" id="L116">        }</span>
+
+<span class="fc" id="L118">        return false;</span>
+    }
+
+    /**
+     * Performs castling, given x and y are castling moves
+     * @param newX, new king's x
+     * @param newY, new king's y
+     */
+    public void castling(int newX, int newY) {
+<span class="fc" id="L127">        int kingX = getX();</span>
+<span class="fc" id="L128">        int kingY = getY();</span>
+        int rookX;
+        int newRookX;
+
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        if (newX &gt; kingX) {</span>
+            // castling on the right
+<span class="fc" id="L134">            rookX = kingX + 6;</span>
+<span class="fc" id="L135">            newRookX = kingX + 1;</span>
+        }
+        else {
+            // castling on the left
+<span class="fc" id="L139">            rookX = kingX - 7;</span>
+<span class="fc" id="L140">            newRookX = kingX - 1;</span>
+        }
+
+<span class="fc" id="L143">        Rook rook = castlingRook(rookX, kingY);</span>
+<span class="fc" id="L144">        rook.setMovingPos(new double[] {rookX * App.CELLSIZE, kingY * App.CELLSIZE});</span>
+<span class="fc" id="L145">        rook.setMoving(true);</span>
+<span class="fc" id="L146">        rook.setPrevPos(new int[] {rookX, kingY});</span>
+<span class="fc" id="L147">        rook.setX(newRookX); </span>
+<span class="fc" id="L148">        rook.setY(kingY);</span>
+<span class="fc" id="L149">        rook.adjustVel();</span>
+<span class="fc" id="L150">        rook.incrementMoveCount();</span>
+<span class="fc" id="L151">    }</span>
+
+    /**
+     * Returns a list of castling moves, rules are:
+     * king is not checked
+     * king and rook are at first or last row
+     * king and rook haven't moved
+     * no obstacles between king and rook
+     * no squares between king and rook are under attacked
+     * @return a list of castling moves
+     */
+    public ArrayList&lt;int[]&gt; castlingMoves() {
+<span class="fc" id="L163">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+<span class="fc" id="L164">        int x = getX();</span>
+<span class="fc" id="L165">        int y = getY();</span>
+
+        // king is checked or king has moved or king is not at first or last row
+<span class="fc bfc" id="L168" title="All 8 branches covered.">        if (isCheck() || hasMoved() || !(y == 0 || y == App.BOARD_WIDTH - 1)) {</span>
+<span class="fc" id="L169">            return moves;</span>
+        }
+
+        // get left and right rooks
+<span class="fc" id="L173">        Rook rookLeft = castlingRook(x - 7, y);</span>
+<span class="fc" id="L174">        Rook rookRight = castlingRook(x + 6, y);</span>
+        
+<span class="fc bfc" id="L176" title="All 6 branches covered.">        if (rookLeft != null &amp;&amp; clearPath(rookLeft) &amp;&amp; safePath(rookLeft)) {</span>
+<span class="fc" id="L177">            moves.add(new int[] {x - 2, y});</span>
+        }
+<span class="fc bfc" id="L179" title="All 6 branches covered.">        if (rookRight != null &amp;&amp; clearPath(rookRight) &amp;&amp; safePath(rookRight)) {</span>
+<span class="fc" id="L180">            moves.add(new int[] {x + 2, y});</span>
+        }
+
+<span class="fc" id="L183">        return moves;</span>
+    }
+
+    /**
+     * Given a coordinate, returns a castling rook, otherwise, returns null
+     * @param x, x coordinate
+     * @param y, y coordinate
+     * @return rook at given coordinate or null
+     */
+    public Rook castlingRook(int x, int y) {
+<span class="fc" id="L193">        Piece piece = Board.getPieceByLocation(x, y);</span>
+<span class="fc bfc" id="L194" title="All 4 branches covered.">        if (piece != null &amp;&amp; </span>
+            piece instanceof Rook &amp;&amp; 
+<span class="fc bfc" id="L196" title="All 2 branches covered.">            piece.hasSameColour(this) &amp;&amp; </span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">            piece.getY() == getY() &amp;&amp;</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">            !piece.hasMoved()) {</span>
+<span class="fc" id="L199">            return (Rook) piece;</span>
+        }
+
+<span class="fc" id="L202">        return null;</span>
+    }
+
+    /**
+     * Returns true if there are no obstacles between king and rook, otherwise, returns false
+     * @param rook, given rook
+     * @return true or false
+     */
+    public boolean clearPath(Rook rook) {
+<span class="fc" id="L211">        int x = getX();</span>
+<span class="fc" id="L212">        int y = getY();</span>
+        
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        if (x &lt; rook.getX()) {</span>
+            // rook on the right
+<span class="fc" id="L216">            int xLoop = x + 1;</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">            while (xLoop &lt; rook.getX()) {</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">                if (Board.getPieceByLocation(xLoop, y) != null) {</span>
+<span class="fc" id="L219">                    return false;</span>
+                }
+<span class="fc" id="L221">                xLoop++;</span>
+            }
+<span class="fc" id="L223">        } else {</span>
+            // rook on the left
+<span class="fc" id="L225">            int xLoop = x - 1;</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">            while (xLoop &gt; rook.getX()) {</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">                if (Board.getPieceByLocation(xLoop, y) != null) {</span>
+<span class="fc" id="L228">                    return false;</span>
+                }
+<span class="fc" id="L230">                xLoop--;</span>
+            }
+        }
+
+<span class="fc" id="L234">        return true;</span>
+    }
+
+    /**
+     * Returns true if path between king and rook is safe (not under attack), otherwise, false
+     * @param rook, given rook
+     * @return true or false
+     */
+    public boolean safePath(Rook rook) {
+<span class="fc" id="L243">        int x = getX();</span>
+<span class="fc" id="L244">        int y = getY();</span>
+        int minX;
+        int maxX;
+
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        if (x &gt; rook.getX()) {</span>
+            // root on the left
+<span class="fc" id="L250">            minX = rook.getX();</span>
+<span class="fc" id="L251">            maxX = x;</span>
+        } else {
+            // root on the right
+<span class="fc" id="L254">            minX = x;</span>
+<span class="fc" id="L255">            maxX = rook.getX();</span>
+        }
+
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">            if (!piece.hasSameColour(this)) {</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">                for (int[] square: piece.allMoves()) {</span>
+<span class="fc bfc" id="L261" title="All 6 branches covered.">                    if (square[1] == y &amp;&amp; square[0] &gt; minX &amp;&amp; square[0] &lt; maxX) {</span>
+<span class="fc" id="L262">                        return false;</span>
+                    }
+<span class="fc" id="L264">                }</span>
+            }
+<span class="fc" id="L266">        }</span>
+
+<span class="fc" id="L268">        return true;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

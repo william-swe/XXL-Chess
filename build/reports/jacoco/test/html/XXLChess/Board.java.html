@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Board.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">home</a> &gt; <a href="index.source.html" class="el_package">XXLChess</a> &gt; <span class="el_source">Board.java</span></div><h1>Board.java</h1><pre class="source lang-java linenums">package XXLChess;
+
+import processing.core.PApplet;
+
+import java.util.*;
+
+import XXLChess.Pieces.Piece;
+
+public class Board {
+    
+    /**
+     * A 2D grid for the game
+     */
+    private int[][] grid;
+
+    /**
+     * A list of all pieces on the board
+     */
+<span class="fc" id="L19">    public static ArrayList&lt;Piece&gt; allPieces = new ArrayList&lt;Piece&gt;();</span>
+
+    /**
+     * Constructor for a game board
+     * Initializes 14x14 2D grid for the game
+     */
+<span class="fc" id="L25">    public Board() {</span>
+<span class="fc" id="L26">        this.grid = new int[App.BOARD_WIDTH][App.BOARD_WIDTH];</span>
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Draws board, pieces and executes logics per frame
+     * @param app, application
+     */
+    public void draw(PApplet app) {
+<span class="fc" id="L34">        tick();</span>
+<span class="fc" id="L35">        drawBoard(app);</span>
+<span class="fc" id="L36">        drawPieces(app);</span>
+<span class="fc" id="L37">    }</span>
+
+    /**
+     * Runs logics per frame
+     */
+    public void tick() {
+<span class="fc" id="L43">        updatePieces();</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Given coordinates, returns true if it is valid (inside the board)
+     * otherwise, returns false
+     * @param x, x coordinate
+     * @param y, y coordinate
+     * @return true or false
+     */
+    public static boolean isValidPosition(int x, int y) {
+<span class="fc bfc" id="L54" title="All 8 branches covered.">        return x &gt;= 0 &amp;&amp; x &lt; App.BOARD_WIDTH &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; App.BOARD_WIDTH;</span>
+    }
+
+    /**
+     * Given coordinates, returns a piece at that location
+     * otherwise, returns null
+     * @param x, x coordinate
+     * @param y, y coordinate
+     * @return piece
+     */
+    public static Piece getPieceByLocation(int x, int y) {
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L66" title="All 4 branches covered.">            if (piece.getX() == x &amp;&amp; piece.getY() == y) {</span>
+<span class="fc" id="L67">                return piece;</span>
+            }
+<span class="fc" id="L69">        }</span>
+
+<span class="fc" id="L71">        return null;</span>
+    }
+
+    /**
+     * Given a list of squares and a square, returns true if the square is in the list
+     * otherwise, returns false
+     * @param squares, list of squares
+     * @param square, a square
+     * @return true or false
+     */
+    public static boolean isInSquares(ArrayList&lt;int[]&gt; squares, int[] square) {
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        for (int[] sq: squares) {</span>
+<span class="fc bfc" id="L83" title="All 4 branches covered.">            if (sq[0] == square[0] &amp;&amp; sq[1] == square[1]) {</span>
+<span class="fc" id="L84">                return true;</span>
+            }
+<span class="fc" id="L86">        }</span>
+
+<span class="fc" id="L88">        return false;</span>
+    }
+
+    /**
+     * Draws chess board
+     * @param app, application
+     */
+    public void drawBoard(PApplet app) {
+
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        for (int i=0; i&lt;grid.length; i++) {</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">            for (int j=0; j&lt;grid[0].length; j++) {</span>
+<span class="fc" id="L99">                app.noStroke();</span>
+                // fill with white if i + j is even, otherwise, black
+<span class="fc bfc" id="L101" title="All 2 branches covered.">                if ((i + j) % 2 == 0) {</span>
+<span class="fc" id="L102">                    app.fill(App.WHITERGB[0], App.WHITERGB[1], App.WHITERGB[2]);</span>
+                } else {
+<span class="fc" id="L104">                    app.fill(App.BLACKRGB[0], App.BLACKRGB[1], App.BLACKRGB[2]);</span>
+                }
+<span class="fc" id="L106">                app.rect(j*App.CELLSIZE, i*App.CELLSIZE, App.CELLSIZE, App.CELLSIZE);</span>
+            }
+        }
+
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Draws pieces
+     * @param app, application
+     */
+    public void drawPieces(PApplet app) {
+<span class="fc bfc" id="L117" title="All 2 branches covered.">        for (Piece p: Board.allPieces) p.draw(app);</span>
+<span class="fc" id="L118">    }</span>
+
+    /**
+     * Updates board pieces by removing captured pieces from the board
+     */
+    public void updatePieces() {
+<span class="fc" id="L124">        ArrayList&lt;Piece&gt; newList = new ArrayList&lt;Piece&gt;();</span>
+        
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        for (Piece piece: Board.allPieces) {</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">            if (!piece.isCaptured()) newList.add(piece);</span>
+<span class="fc" id="L128">        }</span>
+
+<span class="fc" id="L130">        Board.allPieces = newList;</span>
+<span class="fc" id="L131">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

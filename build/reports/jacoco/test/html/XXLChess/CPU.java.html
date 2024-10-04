@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CPU.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">home</a> &gt; <a href="index.source.html" class="el_package">XXLChess</a> &gt; <span class="el_source">CPU.java</span></div><h1>CPU.java</h1><pre class="source lang-java linenums">package XXLChess;
+
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import XXLChess.Pieces.Piece;
+import XXLChess.Pieces.King;
+
+public class CPU extends Player {
+    
+    /**
+     * CPU constructor, initializes name and colour
+     * @param name, name of cpu
+     * @param player_colour, cpu's piece colour
+     */
+    public CPU(String name, String player_colour) {
+<span class="fc" id="L16">        super(name, player_colour);</span>
+<span class="fc" id="L17">    }</span>
+
+    /**
+     * When cpu/ player 2 starts turn:
+     * sets turn status to true and reset last pieces status
+     */
+    public void startTurn() {
+<span class="fc" id="L24">        setTurn(true);</span>
+<span class="fc" id="L25">        resetLastPiece();</span>
+<span class="fc" id="L26">    }</span>
+
+    /**
+     * When cpu/ player 2 ends turn:
+     * set turn status to false
+     */
+    public void endTurn() {
+<span class="fc" id="L33">        setTurn(false);</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * cpu/ player 2 makes a move based on preferences:
+     * checkmate opponent's king
+     * capture opponent's highest value piece or undefended piece
+     * move threatened piece to safety
+     * check opponent king
+     * random move
+     * @return true
+     */
+    public boolean makeMove() {
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        return attackOpponentKing(&quot;checkmate&quot;) ||</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        captureHighestPiece() || </span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        moveThreatenedPiece() || </span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        attackOpponentKing(&quot;check&quot;) || </span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        randomMove();</span>
+    }
+
+    /**
+     * Given a mode, either &quot;checkmate&quot; or &quot;check&quot;, takes action on opponent's king if possible
+     * returns true if any piece satisfies the mode, otherwise, returns false
+     * @param mode, a string, either &quot;checkmate&quot; or &quot;check&quot;
+     * @return true or false
+     */
+    public boolean attackOpponentKing(String mode) {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        for (Piece piece: getPieces()) {</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">            for (int[] square: piece.validMoves()) {</span>
+<span class="fc" id="L62">                boolean isCheckmateOrCheck = false;</span>
+                // simulation: move a piece to a new location and check opponent's king status
+<span class="fc" id="L64">                int originalX = piece.getX();</span>
+<span class="fc" id="L65">                int originalY = piece.getY();</span>
+<span class="fc" id="L66">                int newX = square[0];</span>
+<span class="fc" id="L67">                int newY = square[1];</span>
+<span class="fc" id="L68">                Piece overlapP = Board.getPieceByLocation(newX, newY);</span>
+<span class="fc" id="L69">                piece.setX(newX);</span>
+<span class="fc" id="L70">                piece.setY(newY);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">                if (overlapP != null) {</span>
+<span class="fc" id="L72">                    overlapP.setX(App.BOARD_WIDTH + 1);</span>
+<span class="fc" id="L73">                    overlapP.setY(-1 - App.BOARD_WIDTH);</span>
+                }
+                // get opponent king
+<span class="fc bfc" id="L76" title="All 2 branches covered.">                for (Piece p: Board.allPieces) {</span>
+<span class="fc bfc" id="L77" title="All 4 branches covered.">                    if (p instanceof King &amp;&amp; !p.hasSameColour(piece)) {</span>
+<span class="fc" id="L78">                        King king = (King) p;</span>
+<span class="fc bfc" id="L79" title="All 4 branches covered.">                        if (mode.equals(&quot;checkmate&quot;) &amp;&amp; king.isCheckMated() || </span>
+<span class="fc bfc" id="L80" title="All 4 branches covered.">                            mode.equals(&quot;check&quot;) &amp;&amp; king.isCheck() &amp;&amp; </span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                            piece.isSafeSquare(newX, newY)) {</span>
+<span class="fc" id="L82">                            isCheckmateOrCheck = true;</span>
+<span class="fc" id="L83">                            break;</span>
+                        }
+                    }
+<span class="fc" id="L86">                }</span>
+<span class="fc" id="L87">                piece.setX(originalX);</span>
+<span class="fc" id="L88">                piece.setY(originalY);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">                if (overlapP != null) {</span>
+<span class="fc" id="L90">                    overlapP.setX(newX);</span>
+<span class="fc" id="L91">                    overlapP.setY(newY);</span>
+                }
+<span class="pc bpc" id="L93" title="1 of 4 branches missed.">                if (isCheckmateOrCheck &amp;&amp; piece.move(newX, newY)) {</span>
+<span class="fc" id="L94">                    setLastPiece(piece);</span>
+<span class="fc" id="L95">                    return true;</span>
+                }
+<span class="fc" id="L97">            }</span>
+<span class="fc" id="L98">        }</span>
+
+<span class="fc" id="L100">        return false;</span>
+    }
+
+    /**
+     * Attempt to capture opponent's highest value or undefended piece
+     * @return true or false
+     */
+    public boolean captureHighestPiece() {
+<span class="fc" id="L108">        Piece capture = null;</span>
+<span class="fc" id="L109">        Piece beCaptured = null;</span>
+<span class="fc" id="L110">        double currentDiff = 0;</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (Piece piece: getPieces()) {</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            for (Piece opponentP: piece.validCaptures()) {</span>
+<span class="fc" id="L113">                double diff = opponentP.getValue() - piece.getValue();</span>
+                // capture piece with highest value or
+                // undefended piece
+<span class="fc bfc" id="L116" title="All 2 branches covered.">                if (diff &gt; currentDiff || </span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">                    (opponentP.getDefendPieces(piece).isEmpty() &amp;&amp; </span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">                    opponentP.getValue() &gt; currentDiff)) {</span>
+<span class="fc" id="L119">                    capture = piece;</span>
+<span class="fc" id="L120">                    beCaptured = opponentP;</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">                    if (opponentP.getDefendPieces(piece).isEmpty()) {</span>
+<span class="fc" id="L122">                        currentDiff = opponentP.getValue();</span>
+                    } else {
+<span class="fc" id="L124">                        currentDiff = diff;</span>
+                    }
+                }
+<span class="fc" id="L127">            }</span>
+<span class="fc" id="L128">        }</span>
+
+<span class="pc bpc" id="L130" title="1 of 4 branches missed.">        if (capture != null &amp;&amp; beCaptured != null &amp;&amp; </span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">            capture.move(beCaptured.getX(), beCaptured.getY())) {</span>
+<span class="fc" id="L132">            setLastPiece(capture);</span>
+<span class="fc" id="L133">            return true;</span>
+        }
+
+<span class="fc" id="L136">        return false;</span>
+    }
+
+    /**
+     * Move highest value and undefended piece to a safe place
+     * undefended piece is either the piece is undefended or it is threatened by piece with lower value
+     * @return true or false
+     */
+    public boolean moveThreatenedPiece() {
+<span class="fc" id="L145">        Piece moveP = null;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        for (Piece piece: getPieces()) {</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">            for (Piece opponentP: Board.allPieces) {</span>
+                // find most valuable piece to move
+<span class="fc bfc" id="L149" title="All 2 branches covered.">                if (!opponentP.hasSameColour(piece) &amp;&amp; </span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">                    opponentP.validCaptures().contains(piece) &amp;&amp; </span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">                    (opponentP.getValue() &lt; piece.getValue() || </span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">                    piece.getDefendPieces(opponentP).isEmpty())) {</span>
+<span class="fc bfc" id="L153" title="All 4 branches covered.">                    if (moveP == null || moveP.getValue() &lt; piece.getValue()) {</span>
+<span class="fc" id="L154">                        moveP = piece;</span>
+                    }
+                }
+<span class="fc" id="L157">            }</span>
+<span class="fc" id="L158">        }</span>
+
+<span class="fc bfc" id="L160" title="All 4 branches covered.">        if (moveP != null &amp;&amp; moveP.moveToSafeSquare()) {</span>
+<span class="fc" id="L161">            setLastPiece(moveP);</span>
+<span class="fc" id="L162">            return true;</span>
+        }
+
+<span class="fc" id="L165">        return false;</span>
+    }
+
+    /**
+     * Make a random move
+     * @return true
+     */
+    public boolean randomMove() {
+<span class="fc" id="L173">        ArrayList&lt;Piece&gt; pieces = getPieces();</span>
+<span class="fc" id="L174">        int n = pieces.size();</span>
+        while (true) {
+            // generate a random index
+<span class="fc" id="L177">            int randomI = ThreadLocalRandom.current().nextInt(0, n);</span>
+<span class="fc" id="L178">            Piece piece = pieces.get(randomI);</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">            for (int[] square: piece.validMoves()) {</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">                if (piece.move(square[0], square[1])) {</span>
+<span class="fc" id="L181">                    setLastPiece(piece);</span>
+<span class="fc" id="L182">                    return true;</span>
+                }
+<span class="nc" id="L184">            }</span>
+<span class="nc" id="L185">        }</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

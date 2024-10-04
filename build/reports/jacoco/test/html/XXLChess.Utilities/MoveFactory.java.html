@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MoveFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">home</a> &gt; <a href="index.source.html" class="el_package">XXLChess.Utilities</a> &gt; <span class="el_source">MoveFactory.java</span></div><h1>MoveFactory.java</h1><pre class="source lang-java linenums">package XXLChess.Utilities;
+
+import java.util.*;
+
+import XXLChess.App;
+import XXLChess.Board;
+import XXLChess.Pieces.Amazon;
+import XXLChess.Pieces.Archbishop;
+import XXLChess.Pieces.Bishop;
+import XXLChess.Pieces.Camel;
+import XXLChess.Pieces.Chancellor;
+import XXLChess.Pieces.Guard;
+import XXLChess.Pieces.King;
+import XXLChess.Pieces.Knight;
+import XXLChess.Pieces.Pawn;
+import XXLChess.Pieces.Queen;
+import XXLChess.Pieces.Rook;
+import XXLChess.Pieces.Piece;
+import XXLChess.Interfaces.Jump;
+
+<span class="nc" id="L21">public abstract class MoveFactory {</span>
+
+    /**
+     * Returns a list of all moves (including both valid and legal moves)
+     * @param piece, given piece
+     * @return a list of all moves
+     */
+    public static ArrayList&lt;int[]&gt; allMoves(Piece piece) {
+        // all moves are moves that don't take king safety in to account.
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (piece instanceof Amazon) {</span>
+<span class="fc" id="L31">            return allMovesAmazon(piece);</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        } else if (piece instanceof Archbishop) {</span>
+<span class="fc" id="L33">            return allMovesArchBishop(piece);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        } else if (piece instanceof Bishop) {</span>
+<span class="fc" id="L35">            return allMovesBishop(piece);</span>
+<span class="fc bfc" id="L36" title="All 4 branches covered.">        } else if (piece instanceof Camel || piece instanceof Knight) {</span>
+<span class="fc" id="L37">            return allMovesJumpPiece(piece);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        } else if (piece instanceof Chancellor) {</span>
+<span class="fc" id="L39">            return allMovesChancellor(piece);</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        } else if (piece instanceof Guard) {</span>
+<span class="fc" id="L41">            return allMovesGuard(piece);</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">        } else if (piece instanceof King) {</span>
+<span class="fc" id="L43">            return allMovesKing(piece);</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        } else if (piece instanceof Pawn) {</span>
+<span class="fc" id="L45">            return allMovesPawn(piece);</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        } else if (piece instanceof Queen) {</span>
+<span class="fc" id="L47">            return allMovesQueen(piece);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        } else if (piece instanceof Rook) {</span>
+<span class="fc" id="L49">            return allMovesRook(piece);</span>
+        }
+
+<span class="fc" id="L52">        return new ArrayList&lt;int[]&gt;();</span>
+    }
+
+    /**
+     * Returns a list of capturing pieces (including valid and invalid)
+     * @param piece, given piece
+     * @return a list of all capturing pieces
+     */
+    public static ArrayList&lt;Piece&gt; allCaptures(Piece piece) {
+<span class="fc" id="L61">        ArrayList&lt;int[]&gt; allMoves = allMoves(piece);</span>
+<span class="fc" id="L62">        ArrayList&lt;Piece&gt; allCapturePieces = new ArrayList&lt;Piece&gt;();</span>
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        for (int[] square: allMoves) {</span>
+<span class="fc" id="L65">            Piece overlapP = Board.getPieceByLocation(square[0], square[1]);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (overlapP != null) {</span>
+<span class="fc" id="L67">                allCapturePieces.add(overlapP);</span>
+            }
+<span class="fc" id="L69">        }</span>
+
+<span class="fc" id="L71">        return allCapturePieces;</span>
+    }
+
+    /**
+     * Returns a list of moves for amazon
+     * @param amazon
+     * @return a list of moves for amazon
+     */
+    private static ArrayList&lt;int[]&gt; allMovesAmazon(Piece amazon) {
+<span class="fc" id="L80">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+
+        // knight + bishop + rook
+<span class="fc" id="L83">        moves.addAll(allMovesJumpPiece(amazon));</span>
+<span class="fc" id="L84">        moves.addAll(allMovesBishop(amazon));</span>
+<span class="fc" id="L85">        moves.addAll(allMovesRook(amazon));</span>
+
+<span class="fc" id="L87">        return moves;</span>
+    }
+
+    /**
+     * Returns a list of moves for archBishop
+     * @param archBishop
+     * @return a list of moves for archBishop
+     */
+    private static ArrayList&lt;int[]&gt; allMovesArchBishop(Piece archBishop) {
+<span class="fc" id="L96">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+
+        // knight + bishop
+<span class="fc" id="L99">        moves.addAll(allMovesJumpPiece(archBishop));</span>
+<span class="fc" id="L100">        moves.addAll(allMovesBishop(archBishop));</span>
+
+<span class="fc" id="L102">        return moves;</span>
+    }
+
+    /**
+     * Returns a list of moves for chancellor
+     * @param chancellor
+     * @return a list of moves for chancellor
+     */
+    private static ArrayList&lt;int[]&gt; allMovesChancellor(Piece chancellor) {
+<span class="fc" id="L111">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+
+        // knight + rook
+<span class="fc" id="L114">        moves.addAll(allMovesJumpPiece(chancellor));</span>
+<span class="fc" id="L115">        moves.addAll(allMovesRook(chancellor));</span>
+
+<span class="fc" id="L117">        return moves;</span>
+    }
+
+    /**
+     * Returns a list of moves for guard
+     * @param guard
+     * @return a list of moves for guard
+     */
+    private static ArrayList&lt;int[]&gt; allMovesGuard(Piece guard) {
+<span class="fc" id="L126">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+
+        // knight + king
+<span class="fc" id="L129">        moves.addAll(allMovesJumpPiece(guard));</span>
+<span class="fc" id="L130">        moves.addAll(allMovesKing(guard));</span>
+
+<span class="fc" id="L132">        return moves;</span>
+    }
+
+    /**
+     * Returns a list of moves for queen
+     * @param queen
+     * @return a list of moves for queen
+     */
+    private static ArrayList&lt;int[]&gt; allMovesQueen(Piece queen) {
+<span class="fc" id="L141">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+
+        // bishop + rook
+<span class="fc" id="L144">        moves.addAll(allMovesBishop(queen));</span>
+<span class="fc" id="L145">        moves.addAll(allMovesRook(queen));</span>
+
+<span class="fc" id="L147">        return moves;</span>
+    }
+
+    /**
+     * Given a piece, its coordinates and increments, returns a list of possible moves for that piece
+     * @param piece
+     * @param x
+     * @param y
+     * @param incrementX
+     * @param incrementY
+     * @return a list of possible moves
+     */
+    private static ArrayList&lt;int[]&gt; proceed(Piece piece, int x, int y, int incrementX, int incrementY) {
+<span class="fc" id="L160">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        while (Board.isValidPosition(x + incrementX, y + incrementY)) {</span>
+<span class="fc" id="L162">            x = x + incrementX;</span>
+<span class="fc" id="L163">            y = y + incrementY;</span>
+<span class="fc" id="L164">            Piece overlapP = Board.getPieceByLocation(x, y);</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">            if (overlapP != null) {</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">                if (!overlapP.hasSameColour(piece)) {</span>
+<span class="fc" id="L167">                    moves.add(new int[] {x, y});</span>
+                }
+                break;
+            }
+<span class="fc" id="L171">            moves.add(new int[] {x, y});</span>
+<span class="fc" id="L172">        }</span>
+<span class="fc" id="L173">        return moves;</span>
+    }
+
+    /**
+     * Returns a list of moves for bishop
+     * @param bishop
+     * @return a list of moves for bishop
+     */
+    private static ArrayList&lt;int[]&gt; allMovesBishop(Piece bishop) {
+<span class="fc" id="L182">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+<span class="fc" id="L183">        int x = bishop.getX();</span>
+<span class="fc" id="L184">        int y = bishop.getY();</span>
+
+        // move left up diagonally
+<span class="fc" id="L187">        moves.addAll(proceed(bishop, x, y, -1, -1));</span>
+        // move right up diagonally
+<span class="fc" id="L189">        moves.addAll(proceed(bishop, x, y, 1, -1));</span>
+        // move left down diagonally
+<span class="fc" id="L191">        moves.addAll(proceed(bishop, x, y, -1, 1));</span>
+        // move right down diagonally
+<span class="fc" id="L193">        moves.addAll(proceed(bishop, x, y, 1, 1));</span>
+
+<span class="fc" id="L195">        return moves;</span>
+    }
+
+    /**
+     * Returns a list of moves for rook
+     * @param rook
+     * @return a list of moves for rook
+     */
+    private static ArrayList&lt;int[]&gt; allMovesRook(Piece rook) {
+<span class="fc" id="L204">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+<span class="fc" id="L205">        int x = rook.getX();</span>
+<span class="fc" id="L206">        int y = rook.getY();</span>
+
+        // move up
+<span class="fc" id="L209">        moves.addAll(proceed(rook, x, y, 0, -1));</span>
+        // move right
+<span class="fc" id="L211">        moves.addAll(proceed(rook, x, y, 1, 0));</span>
+        // move down
+<span class="fc" id="L213">        moves.addAll(proceed(rook, x, y, 0, 1));</span>
+        // move left
+<span class="fc" id="L215">        moves.addAll(proceed(rook, x, y, -1, 0));</span>
+
+<span class="fc" id="L217">        return moves;</span>
+    }
+
+    /**
+     * Returns a list of moves for pieces that implement Jump interface
+     * @param piece
+     * @return a list of moves for pieces that implement Jump interface
+     */
+    private static ArrayList&lt;int[]&gt; allMovesJumpPiece(Piece piece) {
+<span class="fc" id="L226">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+<span class="fc" id="L227">        int x = piece.getX();</span>
+<span class="fc" id="L228">        int y = piece.getY();</span>
+<span class="fc" id="L229">        Jump jumpP = (Jump) piece;</span>
+
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        for (int[] square: jumpP.jumpDirections()) {</span>
+<span class="fc" id="L232">            int newX = x + square[0];</span>
+<span class="fc" id="L233">            int newY = y + square[1];</span>
+
+<span class="fc" id="L235">            Piece overlapP = Board.getPieceByLocation(newX, newY);</span>
+<span class="pc bpc" id="L236" title="1 of 6 branches missed.">            if (Board.isValidPosition(newX, newY) &amp;&amp; </span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">                (overlapP == null || overlapP != null &amp;&amp; !overlapP.hasSameColour(piece))) {</span>
+<span class="fc" id="L238">                moves.add(new int[] {newX, newY});</span>
+            }
+<span class="fc" id="L240">        }</span>
+
+<span class="fc" id="L242">        return moves;</span>
+    }
+
+    /**
+     * Returns a list of moves for pawn
+     * @param pawn
+     * @return a list of moves for pawn
+     */
+    private static ArrayList&lt;int[]&gt; allMovesPawn(Piece pawn) {
+<span class="fc" id="L251">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+<span class="fc" id="L252">        Pawn newPawn = (Pawn) pawn;</span>
+<span class="fc" id="L253">        int x = newPawn.getX();</span>
+<span class="fc" id="L254">        int y = newPawn.getY();</span>
+
+        // pawns move forward
+<span class="fc bfc" id="L257" title="All 2 branches covered.">        if (newPawn.isMainPlayerSide()) {</span>
+<span class="fc" id="L258">            int[] frontSquare = new int[] {x, y - 1};</span>
+<span class="fc bfc" id="L259" title="All 2 branches covered.">            if (Board.getPieceByLocation(frontSquare[0], frontSquare[1]) == null) {</span>
+<span class="fc" id="L260">                moves.add(frontSquare);</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">                if (y == App.BOARD_WIDTH - 2 &amp;&amp; </span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">                    Board.getPieceByLocation(frontSquare[0], frontSquare[1] - 1) == null) {</span>
+<span class="fc" id="L263">                    moves.add(new int[] {frontSquare[0], frontSquare[1] - 1});</span>
+                }
+            }
+<span class="fc" id="L266">        } else {</span>
+<span class="fc" id="L267">            int[] frontSquare = new int[] {x, y + 1};</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">            if (Board.getPieceByLocation(frontSquare[0], frontSquare[1]) == null) {</span>
+<span class="fc" id="L269">                moves.add(frontSquare);</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">                if (y == 1 &amp;&amp; </span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">                    Board.getPieceByLocation(frontSquare[0], frontSquare[1] + 1) == null) {</span>
+<span class="fc" id="L272">                    moves.add(new int[] {frontSquare[0], frontSquare[1] + 1});</span>
+                }
+            }
+        }
+
+        // pawn captures diagonally
+<span class="fc" id="L278">        ArrayList&lt;int[]&gt; diagonalSquares = new ArrayList&lt;int[]&gt;();</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">        if (newPawn.isMainPlayerSide()) {</span>
+<span class="fc" id="L280">            diagonalSquares.add(new int[] {x-1, y-1});</span>
+<span class="fc" id="L281">            diagonalSquares.add(new int[] {x+1, y-1});</span>
+        } else {
+<span class="fc" id="L283">            diagonalSquares.add(new int[] {x-1, y+1});</span>
+<span class="fc" id="L284">            diagonalSquares.add(new int[] {x+1, y+1});</span>
+        }
+
+<span class="fc bfc" id="L287" title="All 2 branches covered.">        for (int[] square: diagonalSquares) {</span>
+<span class="fc" id="L288">            Piece piece = Board.getPieceByLocation(square[0], square[1]);</span>
+<span class="fc bfc" id="L289" title="All 4 branches covered.">            if (piece != null &amp;&amp; !piece.hasSameColour(newPawn)) {</span>
+<span class="fc" id="L290">                moves.add(square);</span>
+            }
+<span class="fc" id="L292">        }</span>
+
+<span class="fc" id="L294">        return moves;</span>
+    }
+
+    /**
+     * Returns a list of moves for king
+     * @param king
+     * @return a list of moves for king
+     */
+    private static ArrayList&lt;int[]&gt; allMovesKing(Piece king) {
+<span class="fc" id="L303">        ArrayList&lt;int[]&gt; moves = new ArrayList&lt;int[]&gt;();</span>
+<span class="fc" id="L304">        int x = king.getX();</span>
+<span class="fc" id="L305">        int y = king.getY();</span>
+
+<span class="fc" id="L307">        ArrayList&lt;int[]&gt; kingDirections = new ArrayList&lt;int[]&gt;() {</span>
+            {
+<span class="fc" id="L309">                add(new int[] {0, -1});</span>
+<span class="fc" id="L310">                add(new int[] {1, -1});</span>
+<span class="fc" id="L311">                add(new int[] {1, 0});</span>
+<span class="fc" id="L312">                add(new int[] {1, 1});</span>
+<span class="fc" id="L313">                add(new int[] {0, 1});</span>
+<span class="fc" id="L314">                add(new int[] {-1, 1});</span>
+<span class="fc" id="L315">                add(new int[] {-1, 0});</span>
+<span class="fc" id="L316">                add(new int[] {-1, -1});</span>
+<span class="fc" id="L317">            }</span>
+        };
+
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        for (int[] square: kingDirections) {</span>
+<span class="fc" id="L321">            int newX = x + square[0];</span>
+<span class="fc" id="L322">            int newY = y + square[1];</span>
+
+<span class="fc" id="L324">            Piece overlapP = Board.getPieceByLocation(newX, newY);</span>
+<span class="pc bpc" id="L325" title="1 of 6 branches missed.">            if (Board.isValidPosition(newX, newY) &amp;&amp; </span>
+<span class="fc bfc" id="L326" title="All 2 branches covered.">                (overlapP == null || overlapP != null &amp;&amp; !overlapP.hasSameColour(king))) {</span>
+<span class="fc" id="L327">                moves.add(new int[] {newX, newY});</span>
+            }
+<span class="fc" id="L329">        }</span>
+
+<span class="fc" id="L331">        return moves;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
