@@ -1,8 +1,6 @@
 # XXL Chess Game
 
 ## Table of Contents
-- [XXL Chess Game](#xxl-chess-game)
-  - [Table of Contents](#table-of-contents)
   - [Technology](#technology)
   - [Execution](#execution)
   - [Features](#features)
