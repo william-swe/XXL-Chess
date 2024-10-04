@@ -8,5 +8,8 @@
 .gradle
 .vscode
 
+# Ignore build folder
+build
+
 # Ignore "Superseded" folder
 Superseded

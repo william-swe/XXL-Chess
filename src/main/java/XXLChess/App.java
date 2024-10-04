@@ -1,19 +1,9 @@
 package XXLChess;
 
-//import org.reflections.Reflections;
-//import org.reflections.scanners.Scanners;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.data.JSONObject;
-// import processing.data.JSONArray;
-// import processing.core.PFont;
 import processing.event.MouseEvent;
-
-// import java.util.concurrent.ConcurrentHashMap;
-// import java.util.concurrent.TimeUnit;
-
-// import com.jogamp.newt.event.KeyEvent;
-
 import XXLChess.Pieces.Piece;
 import XXLChess.Pieces.Amazon;
 import XXLChess.Pieces.Archbishop;
